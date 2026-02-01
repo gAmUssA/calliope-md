@@ -1,4 +1,4 @@
-.PHONY: all build watch clean package install icon publish publish-ovsx publish-all help
+.PHONY: all build watch clean package install icon publish publish-ovsx publish-all help bump-patch bump-minor bump-major
 
 # Default target
 all: build
@@ -55,6 +55,25 @@ package: build icon
 
 # Get the current .vsix filename
 VSIX_FILE = $(shell ls -t *.vsix 2>/dev/null | head -1)
+
+# ============================================
+# Version Bumping
+# ============================================
+
+# Bump patch version (0.0.x)
+bump-patch:
+	npm version patch --no-git-tag-version
+	@echo "Version bumped to $$(node -p "require('./package.json').version")"
+
+# Bump minor version (0.x.0)
+bump-minor:
+	npm version minor --no-git-tag-version
+	@echo "Version bumped to $$(node -p "require('./package.json').version")"
+
+# Bump major version (x.0.0)
+bump-major:
+	npm version major --no-git-tag-version
+	@echo "Version bumped to $$(node -p "require('./package.json').version")"
 
 # ============================================
 # VS Code Marketplace
@@ -141,6 +160,11 @@ help:
 	@echo "Packaging:"
 	@echo "  make icon          - Generate PNG icon from SVG"
 	@echo "  make package       - Create .vsix package"
+	@echo ""
+	@echo "Version Bumping:"
+	@echo "  make bump-patch    - Bump patch version (0.0.x)"
+	@echo "  make bump-minor    - Bump minor version (0.x.0)"
+	@echo "  make bump-major    - Bump major version (x.0.0)"
 	@echo ""
 	@echo "Publishing - VS Code Marketplace:"
 	@echo "  make publish-vscode          - Publish to VS Code Marketplace"

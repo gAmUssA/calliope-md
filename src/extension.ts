@@ -14,12 +14,16 @@ import { MarkdownLinkProvider } from './providers/linkProvider';
 import { MarkdownHoverProvider } from './providers/hoverProvider';
 import { ImageHoverProvider } from './decorations/elements/images';
 import { clearCache } from './parser/parseCache';
+import { initializePresentationMode, disposePresentationMode, togglePresentationMode } from './presentationMode';
 
 let previousSelection: vscode.Selection | undefined;
 
 export function activate(context: vscode.ExtensionContext): void {
   // Initialize decoration types
   initializeDecorations();
+
+  // Initialize presentation mode
+  initializePresentationMode(context);
 
   // Set up cursor change callback for visibility updates
   setCursorChangeCallback((editor) => {
@@ -137,9 +141,17 @@ export function activate(context: vscode.ExtensionContext): void {
       new ImageHoverProvider()
     )
   );
+
+  // Register presentation mode toggle command
+  context.subscriptions.push(
+    vscode.commands.registerCommand('calliope.togglePresentationMode', async () => {
+      await togglePresentationMode();
+    })
+  );
 }
 
 export function deactivate(): void {
   disposeDecorations();
+  disposePresentationMode();
   clearCache();
 }

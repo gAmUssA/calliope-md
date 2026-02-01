@@ -2,7 +2,7 @@
   "name": "calliope-md",
   "displayName": "Calliope - Hybrid Markdown Editor",
   "description": "Ulysses-style inline Markdown rendering. Write in Markdown, see it rendered — syntax hides until you need it.",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "publisher": "vikgamov",
   "license": "MIT",
   "icon": "images/icon.png",
@@ -49,6 +49,10 @@
       {
         "command": "calliope.toggleCheckbox",
         "title": "Calliope: Toggle Task Checkbox"
+      },
+      {
+        "command": "calliope.togglePresentationMode",
+        "title": "Calliope: Toggle Presentation Mode"
       }
     ],
     "configuration": {

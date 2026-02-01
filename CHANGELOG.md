@@ -5,6 +5,20 @@ All notable changes to the Calliope extension will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-02-01
+
+### Added
+
+- **Presentation Mode** — distraction-free mode for demos and screencasts
+  - Toggle with `Calliope: Toggle Presentation Mode` command
+  - Increases font size (18px) and zoom level (2x)
+  - Hides sidebar, activity bar, status bar, minimap, line numbers, terminal
+  - Applies clean background colors (black for dark themes, white for light)
+  - Theme-aware: updates colors automatically when switching themes
+  - Status bar button to toggle presentation mode
+  - Persists state across VS Code restarts
+  - Automatic restoration of original settings on deactivation
+
 ## [0.2.0] - 2026-02-01
 
 ### Added
