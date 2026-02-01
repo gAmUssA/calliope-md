@@ -2,7 +2,7 @@
   "name": "calliope-md",
   "displayName": "Calliope - Hybrid Markdown Editor",
   "description": "Ulysses-style inline Markdown rendering. Write in Markdown, see it rendered — syntax hides until you need it.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "vikgamov",
   "license": "MIT",
   "icon": "images/icon.png",
@@ -90,6 +90,31 @@
           "type": "boolean",
           "default": true,
           "description": "Render inline code with background"
+        },
+        "calliope.renderBlockquotes": {
+          "type": "boolean",
+          "default": true,
+          "description": "Render blockquotes with left border and background"
+        },
+        "calliope.renderHorizontalRules": {
+          "type": "boolean",
+          "default": true,
+          "description": "Render horizontal rules as visual separators"
+        },
+        "calliope.renderCodeBlocks": {
+          "type": "boolean",
+          "default": true,
+          "description": "Style fenced code block delimiters"
+        },
+        "calliope.renderImages": {
+          "type": "boolean",
+          "default": true,
+          "description": "Render inline image previews"
+        },
+        "calliope.renderLists": {
+          "type": "boolean",
+          "default": true,
+          "description": "Render list markers with bullet styling"
         }
       }
     }

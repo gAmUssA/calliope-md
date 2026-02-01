@@ -11,6 +11,11 @@ import { createEmphasisDecorations, applyEmphasisDecorations } from './elements/
 import { createTaskListDecorations, applyTaskListDecorations } from './elements/taskLists';
 import { createCodeDecorations, applyCodeDecorations } from './elements/code';
 import { createLinkDecorations, applyLinkDecorations } from './elements/links';
+import { createBlockquoteDecorations, applyBlockquoteDecorations } from './elements/blockquotes';
+import { createHorizontalRuleDecorations, applyHorizontalRuleDecorations } from './elements/horizontalRules';
+import { createCodeBlockDecorations, applyCodeBlockDecorations } from './elements/codeBlocks';
+import { createImageDecorations, applyImageDecorations } from './elements/images';
+import { createListDecorations, applyListDecorations } from './elements/lists';
 
 let decorationTypes: DecorationTypes | undefined;
 let updateTimeout: NodeJS.Timeout | undefined;
@@ -156,6 +161,69 @@ function updateDecorations(editor: vscode.TextEditor): void {
     clearLinkDecorations(editor);
   }
 
+  // Blockquotes
+  if (config.renderBlockquotes) {
+    const blockquoteDecos = createBlockquoteDecorations(
+      filterByVisibleRange(parsed.blockquotes, visibleRange),
+      editor
+    );
+    applyBlockquoteDecorations(editor, decorationTypes, blockquoteDecos);
+    allSyntaxGhost.push(...blockquoteDecos.syntaxGhost);
+  } else {
+    clearBlockquoteDecorations(editor);
+  }
+
+  // Horizontal Rules
+  if (config.renderHorizontalRules) {
+    const hrDecos = createHorizontalRuleDecorations(
+      filterByVisibleRange(parsed.horizontalRules, visibleRange),
+      editor
+    );
+    applyHorizontalRuleDecorations(editor, decorationTypes, hrDecos);
+    allSyntaxHidden.push(...hrDecos.syntaxHidden);
+    allSyntaxGhost.push(...hrDecos.syntaxGhost);
+  } else {
+    clearHorizontalRuleDecorations(editor);
+  }
+
+  // Fenced Code Blocks
+  if (config.renderCodeBlocks) {
+    const codeBlockDecos = createCodeBlockDecorations(
+      filterByVisibleRange(parsed.fencedCodes, visibleRange),
+      editor
+    );
+    applyCodeBlockDecorations(editor, decorationTypes, codeBlockDecos);
+    allSyntaxGhost.push(...codeBlockDecos.syntaxGhost);
+  } else {
+    clearCodeBlockDecorations(editor);
+  }
+
+  // Images
+  if (config.renderImages) {
+    const imageDecos = createImageDecorations(
+      filterByVisibleRange(parsed.images, visibleRange),
+      editor
+    );
+    applyImageDecorations(editor, decorationTypes, imageDecos);
+    allSyntaxHidden.push(...imageDecos.syntaxHidden);
+    allSyntaxGhost.push(...imageDecos.syntaxGhost);
+  } else {
+    clearImageDecorations(editor);
+  }
+
+  // Lists
+  if (config.renderLists) {
+    const listDecos = createListDecorations(
+      filterByVisibleRange(parsed.listItems, visibleRange),
+      editor
+    );
+    applyListDecorations(editor, decorationTypes, listDecos);
+    allSyntaxHidden.push(...listDecos.syntaxHidden);
+    allSyntaxGhost.push(...listDecos.syntaxGhost);
+  } else {
+    clearListDecorations(editor);
+  }
+
   // Apply combined syntax decorations
   editor.setDecorations(decorationTypes.syntaxHidden, allSyntaxHidden);
   editor.setDecorations(decorationTypes.syntaxGhost, allSyntaxGhost);
@@ -199,6 +267,7 @@ function clearAllDecorations(editor: vscode.TextEditor): void {
 
   const emptyArray: vscode.DecorationOptions[] = [];
 
+  // Phase 1 elements
   editor.setDecorations(decorationTypes.h1Content, emptyArray);
   editor.setDecorations(decorationTypes.h2Content, emptyArray);
   editor.setDecorations(decorationTypes.h3Content, emptyArray);
@@ -213,6 +282,17 @@ function clearAllDecorations(editor: vscode.TextEditor): void {
   editor.setDecorations(decorationTypes.taskCompletedLine, emptyArray);
   editor.setDecorations(decorationTypes.inlineCode, emptyArray);
   editor.setDecorations(decorationTypes.linkText, emptyArray);
+
+  // Phase 2 elements
+  editor.setDecorations(decorationTypes.blockquoteBorder, emptyArray);
+  editor.setDecorations(decorationTypes.blockquoteMarkerDim, emptyArray);
+  editor.setDecorations(decorationTypes.horizontalRule, emptyArray);
+  editor.setDecorations(decorationTypes.codeFenceDim, emptyArray);
+  editor.setDecorations(decorationTypes.imagePreview, emptyArray);
+  editor.setDecorations(decorationTypes.listBullet, emptyArray);
+  editor.setDecorations(decorationTypes.listNumber, emptyArray);
+
+  // Shared syntax decorations
   editor.setDecorations(decorationTypes.syntaxHidden, emptyArray);
   editor.setDecorations(decorationTypes.syntaxGhost, emptyArray);
 }
@@ -252,4 +332,31 @@ function clearCodeDecorations(editor: vscode.TextEditor): void {
 function clearLinkDecorations(editor: vscode.TextEditor): void {
   if (!decorationTypes) return;
   editor.setDecorations(decorationTypes.linkText, []);
+}
+
+function clearBlockquoteDecorations(editor: vscode.TextEditor): void {
+  if (!decorationTypes) return;
+  editor.setDecorations(decorationTypes.blockquoteBorder, []);
+  editor.setDecorations(decorationTypes.blockquoteMarkerDim, []);
+}
+
+function clearHorizontalRuleDecorations(editor: vscode.TextEditor): void {
+  if (!decorationTypes) return;
+  editor.setDecorations(decorationTypes.horizontalRule, []);
+}
+
+function clearCodeBlockDecorations(editor: vscode.TextEditor): void {
+  if (!decorationTypes) return;
+  editor.setDecorations(decorationTypes.codeFenceDim, []);
+}
+
+function clearImageDecorations(editor: vscode.TextEditor): void {
+  if (!decorationTypes) return;
+  editor.setDecorations(decorationTypes.imagePreview, []);
+}
+
+function clearListDecorations(editor: vscode.TextEditor): void {
+  if (!decorationTypes) return;
+  editor.setDecorations(decorationTypes.listBullet, []);
+  editor.setDecorations(decorationTypes.listNumber, []);
 }

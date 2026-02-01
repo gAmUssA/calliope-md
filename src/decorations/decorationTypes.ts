@@ -26,6 +26,23 @@ export interface DecorationTypes {
 
   // Links
   linkText: vscode.TextEditorDecorationType;
+
+  // Phase 2: Blockquotes
+  blockquoteBorder: vscode.TextEditorDecorationType;
+  blockquoteMarkerDim: vscode.TextEditorDecorationType;
+
+  // Phase 2: Horizontal rules
+  horizontalRule: vscode.TextEditorDecorationType;
+
+  // Phase 2: Fenced code blocks
+  codeFenceDim: vscode.TextEditorDecorationType;
+
+  // Phase 2: Images
+  imagePreview: vscode.TextEditorDecorationType;
+
+  // Phase 2: Lists
+  listBullet: vscode.TextEditorDecorationType;
+  listNumber: vscode.TextEditorDecorationType;
 }
 
 export function createDecorationTypes(ghostOpacity: number): DecorationTypes {
@@ -103,6 +120,42 @@ export function createDecorationTypes(ghostOpacity: number): DecorationTypes {
     linkText: vscode.window.createTextEditorDecorationType({
       color: new vscode.ThemeColor('textLink.foreground'),
       textDecoration: 'underline',
+    }),
+
+    // Phase 2: Blockquotes
+    blockquoteBorder: vscode.window.createTextEditorDecorationType({
+      borderLeft: '3px solid',
+      borderColor: new vscode.ThemeColor('textBlockQuote.border'),
+      backgroundColor: new vscode.ThemeColor('textBlockQuote.background'),
+      isWholeLine: true,
+    }),
+    blockquoteMarkerDim: vscode.window.createTextEditorDecorationType({
+      opacity: '0.4',
+    }),
+
+    // Phase 2: Horizontal rules
+    horizontalRule: vscode.window.createTextEditorDecorationType({
+      borderBottom: '1px solid',
+      borderColor: new vscode.ThemeColor('editorLineNumber.foreground'),
+      isWholeLine: true,
+    }),
+
+    // Phase 2: Fenced code blocks
+    codeFenceDim: vscode.window.createTextEditorDecorationType({
+      opacity: ghostOpacity.toString(),
+    }),
+
+    // Phase 2: Images
+    imagePreview: vscode.window.createTextEditorDecorationType({
+      // Image preview handled via before/after pseudo-elements
+    }),
+
+    // Phase 2: Lists
+    listBullet: vscode.window.createTextEditorDecorationType({
+      // Bullet replacement handled via before pseudo-element
+    }),
+    listNumber: vscode.window.createTextEditorDecorationType({
+      fontWeight: '600',
     }),
   };
 }

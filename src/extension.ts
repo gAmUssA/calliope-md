@@ -12,6 +12,7 @@ import { handleSelectionChange, setCursorChangeCallback } from './handlers/curso
 import { toggleCheckbox, detectCheckboxClick } from './handlers/checkboxToggle';
 import { MarkdownLinkProvider } from './providers/linkProvider';
 import { MarkdownHoverProvider } from './providers/hoverProvider';
+import { ImageHoverProvider } from './decorations/elements/images';
 import { clearCache } from './parser/parseCache';
 
 let previousSelection: vscode.Selection | undefined;
@@ -126,6 +127,14 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.languages.registerHoverProvider(
       { language: 'markdown' },
       new MarkdownHoverProvider()
+    )
+  );
+
+  // Register HoverProvider for image previews
+  context.subscriptions.push(
+    vscode.languages.registerHoverProvider(
+      { language: 'markdown' },
+      new ImageHoverProvider()
     )
   );
 }

@@ -8,6 +8,11 @@ export interface CalliopeConfig {
   renderTaskLists: boolean;
   renderLinks: boolean;
   renderInlineCode: boolean;
+  renderBlockquotes: boolean;
+  renderHorizontalRules: boolean;
+  renderCodeBlocks: boolean;
+  renderImages: boolean;
+  renderLists: boolean;
 }
 
 export function getConfig(): CalliopeConfig {
@@ -21,5 +26,10 @@ export function getConfig(): CalliopeConfig {
     renderTaskLists: config.get<boolean>('renderTaskLists', true),
     renderLinks: config.get<boolean>('renderLinks', true),
     renderInlineCode: config.get<boolean>('renderInlineCode', true),
+    renderBlockquotes: config.get<boolean>('renderBlockquotes', true),
+    renderHorizontalRules: config.get<boolean>('renderHorizontalRules', true),
+    renderCodeBlocks: config.get<boolean>('renderCodeBlocks', true),
+    renderImages: config.get<boolean>('renderImages', true),
+    renderLists: config.get<boolean>('renderLists', true),
   };
 }

@@ -64,3 +64,88 @@ More content here to test scrolling and viewport-aware rendering.
 - [ ] One more task
 
 The end of the test file.
+
+---
+
+## Phase 2 Elements
+
+### Blockquotes
+
+> This is a simple blockquote.
+> It spans multiple lines.
+
+> Blockquote with **bold** and *italic* text.
+
+> Nested blockquote:
+> > This is nested inside another blockquote.
+
+### Horizontal Rules
+
+Three dashes:
+
+---
+
+Three asterisks:
+
+***
+
+Three underscores:
+
+___
+
+### Fenced Code Blocks
+
+```javascript
+function hello() {
+  console.log("Hello, World!");
+  return 42;
+}
+```
+
+```python
+def greet(name):
+    print(f"Hello, {name}!")
+```
+
+```
+Plain code block without language
+```
+
+### Images
+
+![Alt text for local image](./images/icon.svg)
+
+![Remote image](https://via.placeholder.com/150)
+
+### Lists
+
+Unordered lists:
+
+- First item
+- Second item
+  - Nested item
+  - Another nested item
+- Third item
+
+Alternative markers:
+
+* Star marker
+* Another star
+
++ Plus marker
++ Another plus
+
+Ordered lists:
+
+1. First ordered item
+2. Second ordered item
+3. Third ordered item
+
+Mixed nesting:
+
+1. First ordered
+   - Unordered inside
+   - Another unordered
+2. Second ordered
+   1. Nested ordered
+   2. More nested

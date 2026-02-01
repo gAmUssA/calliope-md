@@ -54,12 +54,54 @@ export interface LinkElement extends ParsedElement {
   urlPartRange: SourceRange;      // (url)
 }
 
+// Phase 2 Elements
+
+export interface BlockquoteElement extends ParsedElement {
+  type: 'blockquote';
+  markerRanges: SourceRange[];    // The > markers for each line
+  contentRange: SourceRange;      // The blockquote content
+}
+
+export interface HorizontalRuleElement extends ParsedElement {
+  type: 'horizontalRule';
+  syntaxRange: SourceRange;       // The ---, ***, or ___ syntax
+}
+
+export interface FencedCodeElement extends ParsedElement {
+  type: 'fencedCode';
+  language: string | null;
+  openFenceRange: SourceRange;    // Opening ``` line
+  closeFenceRange: SourceRange;   // Closing ``` line
+  contentRange: SourceRange;      // The code content
+}
+
+export interface ImageElement extends ParsedElement {
+  type: 'image';
+  url: string;
+  alt: string;
+  syntaxRange: SourceRange;       // The full ![alt](url) syntax
+}
+
+export interface ListItemElement extends ParsedElement {
+  type: 'listItem';
+  ordered: boolean;
+  index?: number;                 // For ordered lists: 1, 2, 3...
+  markerRange: SourceRange;       // The -, *, +, or number marker
+  contentRange: SourceRange;      // The list item content
+  depth: number;                  // Nesting level (0 = top level)
+}
+
 export interface ParsedDocument {
   headers: HeaderElement[];
   emphasis: EmphasisElement[];
   taskLists: TaskListElement[];
   inlineCodes: InlineCodeElement[];
   links: LinkElement[];
+  blockquotes: BlockquoteElement[];
+  horizontalRules: HorizontalRuleElement[];
+  fencedCodes: FencedCodeElement[];
+  images: ImageElement[];
+  listItems: ListItemElement[];
 }
 
 export type AnyParsedElement =
@@ -67,4 +109,9 @@ export type AnyParsedElement =
   | EmphasisElement
   | TaskListElement
   | InlineCodeElement
-  | LinkElement;
+  | LinkElement
+  | BlockquoteElement
+  | HorizontalRuleElement
+  | FencedCodeElement
+  | ImageElement
+  | ListItemElement;
