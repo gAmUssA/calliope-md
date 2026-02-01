@@ -119,9 +119,9 @@
 - [x] 12.1 Wire all decoration element modules into decorationManager
 - [x] 12.2 Implement toggle command to enable/disable all rendering
 - [x] 12.3 Create test Markdown file with all supported elements
-- [ ] 12.4 Test cursor movement through various Markdown constructs
-- [ ] 12.5 Test checkbox click-to-toggle functionality
-- [ ] 12.6 Test Ctrl+click link opening
-- [ ] 12.7 Test performance with large (1000+ line) Markdown file
-- [ ] 12.8 Test theme switching (light/dark)
-- [ ] 12.9 Verify configuration toggles work for each element type
+- [x] 12.4 Test cursor movement through various Markdown constructs
+- [x] 12.5 Test checkbox click-to-toggle functionality
+- [x] 12.6 Test Ctrl+click link opening
+- [x] 12.7 Test performance with large (1000+ line) Markdown file
+- [x] 12.8 Test theme switching (light/dark)
+- [x] 12.9 Verify configuration toggles work for each element type
