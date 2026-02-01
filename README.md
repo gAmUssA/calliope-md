@@ -1,6 +1,7 @@
 # Calliope - Hybrid Markdown Editor
 
-[![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/vikgamov.calliope-md?style=flat-square&label=VS%20Code%20Marketplace&color=6366f1)](https://marketplace.visualstudio.com/items?itemName=vikgamov.calliope-md)
+[![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/vikgamov.calliope-md?style=flat-square&label=VS%20Code&color=6366f1)](https://marketplace.visualstudio.com/items?itemName=vikgamov.calliope-md)
+[![Open VSX](https://img.shields.io/open-vsx/v/vikgamov/calliope-md?style=flat-square&label=Open%20VSX&color=6366f1)](https://open-vsx.org/extension/vikgamov/calliope-md)
 [![Installs](https://img.shields.io/visual-studio-marketplace/i/vikgamov.calliope-md?style=flat-square&color=6366f1)](https://marketplace.visualstudio.com/items?itemName=vikgamov.calliope-md)
 [![License](https://img.shields.io/github/license/gAmUssA/calliope-md?style=flat-square&color=6366f1)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/gAmUssA/calliope-md?style=flat-square&color=6366f1)](https://github.com/gAmUssA/calliope-md)

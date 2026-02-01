@@ -1,4 +1,4 @@
-.PHONY: all build watch clean package install icon publish help
+.PHONY: all build watch clean package install icon publish publish-ovsx publish-all help
 
 # Default target
 all: build
@@ -53,8 +53,15 @@ package: build icon
 	fi
 	vsce package
 
-# Publish to VS Code Marketplace (requires VSCE_PAT or login)
-publish: build icon
+# Get the current .vsix filename
+VSIX_FILE = $(shell ls -t *.vsix 2>/dev/null | head -1)
+
+# ============================================
+# VS Code Marketplace
+# ============================================
+
+# Publish to VS Code Marketplace (requires VSCE_PAT env var or prior login)
+publish-vscode: package
 	@if ! command -v vsce >/dev/null 2>&1; then \
 		echo "Installing vsce..."; \
 		npm install -g @vscode/vsce; \
@@ -62,14 +69,47 @@ publish: build icon
 	vsce publish
 
 # Publish with specific version bump
-publish-patch: build icon
+publish-vscode-patch: build icon
 	vsce publish patch
 
-publish-minor: build icon
+publish-vscode-minor: build icon
 	vsce publish minor
 
-publish-major: build icon
+publish-vscode-major: build icon
 	vsce publish major
+
+# ============================================
+# Open VSX Registry
+# ============================================
+
+# Publish to Open VSX (requires OVSX_PAT env var)
+publish-ovsx: package
+	@if ! command -v ovsx >/dev/null 2>&1; then \
+		echo "Installing ovsx..."; \
+		npm install -g ovsx; \
+	fi
+	@if [ -z "$(OVSX_PAT)" ]; then \
+		echo "Error: OVSX_PAT environment variable not set"; \
+		echo "Get your token from: https://open-vsx.org/user-settings/tokens"; \
+		echo "Then run: export OVSX_PAT=your_token"; \
+		exit 1; \
+	fi
+	ovsx publish $(VSIX_FILE) -p $(OVSX_PAT)
+
+# ============================================
+# Publish to Both Marketplaces
+# ============================================
+
+# Publish to both VS Code Marketplace and Open VSX
+publish-all: publish-vscode publish-ovsx
+	@echo "Published to both VS Code Marketplace and Open VSX!"
+
+# Alias for backwards compatibility
+publish: publish-vscode
+
+# ============================================
+# Development
+# ============================================
 
 # Run extension in VS Code (opens new window)
 run:
@@ -83,25 +123,43 @@ lint:
 		echo "npx not found"; \
 	fi
 
-# Show help
+# ============================================
+# Help
+# ============================================
+
 help:
 	@echo "Calliope Markdown Extension - Build Commands"
 	@echo ""
 	@echo "Development:"
-	@echo "  make install    - Install npm dependencies"
-	@echo "  make build      - Compile TypeScript"
-	@echo "  make watch      - Watch mode for development"
-	@echo "  make run        - Launch VS Code with extension"
-	@echo "  make lint       - Type-check without emitting"
-	@echo "  make clean      - Remove build artifacts"
+	@echo "  make install       - Install npm dependencies"
+	@echo "  make build         - Compile TypeScript"
+	@echo "  make watch         - Watch mode for development"
+	@echo "  make run           - Launch VS Code with extension"
+	@echo "  make lint          - Type-check without emitting"
+	@echo "  make clean         - Remove build artifacts"
 	@echo ""
-	@echo "Publishing:"
-	@echo "  make icon       - Generate PNG icon from SVG"
-	@echo "  make package    - Create .vsix package"
-	@echo "  make publish    - Publish to VS Code Marketplace"
-	@echo "  make publish-patch/minor/major - Publish with version bump"
+	@echo "Packaging:"
+	@echo "  make icon          - Generate PNG icon from SVG"
+	@echo "  make package       - Create .vsix package"
 	@echo ""
-	@echo "Requirements for icon generation (one of):"
-	@echo "  brew install librsvg    # rsvg-convert"
-	@echo "  brew install inkscape   # inkscape"
-	@echo "  brew install imagemagick # convert"
+	@echo "Publishing - VS Code Marketplace:"
+	@echo "  make publish-vscode          - Publish to VS Code Marketplace"
+	@echo "  make publish-vscode-patch    - Publish with patch version bump"
+	@echo "  make publish-vscode-minor    - Publish with minor version bump"
+	@echo "  make publish-vscode-major    - Publish with major version bump"
+	@echo ""
+	@echo "Publishing - Open VSX:"
+	@echo "  make publish-ovsx            - Publish to Open VSX Registry"
+	@echo "                                 (requires OVSX_PAT env var)"
+	@echo ""
+	@echo "Publishing - Both:"
+	@echo "  make publish-all             - Publish to both marketplaces"
+	@echo ""
+	@echo "Environment Variables:"
+	@echo "  VSCE_PAT  - VS Code Marketplace token (or use 'vsce login')"
+	@echo "  OVSX_PAT  - Open VSX token (https://open-vsx.org/user-settings/tokens)"
+	@echo ""
+	@echo "Icon Generation (requires one of):"
+	@echo "  brew install librsvg         # rsvg-convert"
+	@echo "  brew install inkscape        # inkscape"
+	@echo "  brew install imagemagick     # convert"
