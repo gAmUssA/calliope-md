@@ -1,0 +1,114 @@
+{
+  "name": "calliope-md",
+  "displayName": "Calliope - Hybrid Markdown Editor",
+  "description": "Ulysses-style inline Markdown rendering. Write in Markdown, see it rendered — syntax hides until you need it.",
+  "version": "0.1.0",
+  "publisher": "vikgamov",
+  "license": "MIT",
+  "icon": "images/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gAmUssA/calliope-md"
+  },
+  "bugs": {
+    "url": "https://github.com/gAmUssA/calliope-md/issues"
+  },
+  "homepage": "https://github.com/gAmUssA/calliope-md#readme",
+  "keywords": [
+    "markdown",
+    "wysiwyg",
+    "editor",
+    "writing",
+    "ulysses",
+    "hybrid",
+    "inline",
+    "preview",
+    "distraction-free"
+  ],
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Other",
+    "Formatters"
+  ],
+  "galleryBanner": {
+    "color": "#6366f1",
+    "theme": "dark"
+  },
+  "activationEvents": [
+    "onLanguage:markdown"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "calliope.toggle",
+        "title": "Calliope: Toggle Inline Rendering"
+      },
+      {
+        "command": "calliope.toggleCheckbox",
+        "title": "Calliope: Toggle Task Checkbox"
+      }
+    ],
+    "configuration": {
+      "title": "Calliope",
+      "properties": {
+        "calliope.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Calliope inline rendering"
+        },
+        "calliope.ghostOpacity": {
+          "type": "number",
+          "default": 0.3,
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Opacity for syntax markers in ghost state (0-1)"
+        },
+        "calliope.renderHeaders": {
+          "type": "boolean",
+          "default": true,
+          "description": "Render headers with larger font sizes"
+        },
+        "calliope.renderEmphasis": {
+          "type": "boolean",
+          "default": true,
+          "description": "Render bold, italic, and strikethrough text"
+        },
+        "calliope.renderTaskLists": {
+          "type": "boolean",
+          "default": true,
+          "description": "Render task list checkboxes"
+        },
+        "calliope.renderLinks": {
+          "type": "boolean",
+          "default": true,
+          "description": "Render links with hidden URLs"
+        },
+        "calliope.renderInlineCode": {
+          "type": "boolean",
+          "default": true,
+          "description": "Render inline code with background"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "esbuild src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
+    "watch": "npm run compile -- --watch",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.96.0",
+    "esbuild": "^0.20.0",
+    "typescript": "^5.4.0"
+  },
+  "dependencies": {
+    "remark-gfm": "^4.0.0",
+    "remark-parse": "^11.0.0",
+    "unified": "^11.0.0",
+    "unist-util-visit": "^5.0.0"
+  }
+}

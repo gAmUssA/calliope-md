@@ -1,0 +1,136 @@
+import * as vscode from 'vscode';
+import {
+  initializeDecorations,
+  disposeDecorations,
+  triggerUpdateDecorations,
+  updateDecorationsImmediate,
+  toggleEnabled,
+  setEnabled,
+  isDecorationEnabled,
+} from './decorations/decorationManager';
+import { handleSelectionChange, setCursorChangeCallback } from './handlers/cursorTracker';
+import { toggleCheckbox, detectCheckboxClick } from './handlers/checkboxToggle';
+import { MarkdownLinkProvider } from './providers/linkProvider';
+import { MarkdownHoverProvider } from './providers/hoverProvider';
+import { clearCache } from './parser/parseCache';
+
+let previousSelection: vscode.Selection | undefined;
+
+export function activate(context: vscode.ExtensionContext): void {
+  // Initialize decoration types
+  initializeDecorations();
+
+  // Set up cursor change callback for visibility updates
+  setCursorChangeCallback((editor) => {
+    updateDecorationsImmediate(editor);
+  });
+
+  // Initial decoration for active editor
+  if (vscode.window.activeTextEditor?.document.languageId === 'markdown') {
+    triggerUpdateDecorations(vscode.window.activeTextEditor);
+  }
+
+  // Document changes - re-parse and re-decorate
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeTextDocument((event) => {
+      const editor = vscode.window.activeTextEditor;
+      if (editor && event.document === editor.document && event.document.languageId === 'markdown') {
+        triggerUpdateDecorations(editor);
+      }
+    })
+  );
+
+  // Cursor movement - update visibility states
+  context.subscriptions.push(
+    vscode.window.onDidChangeTextEditorSelection((event) => {
+      if (event.textEditor.document.languageId === 'markdown') {
+        // Check for checkbox click
+        detectCheckboxClick(event.textEditor, previousSelection);
+        previousSelection = event.selections[0];
+
+        // Handle visibility state changes
+        handleSelectionChange(event);
+      }
+    })
+  );
+
+  // Scroll - update viewport decorations
+  context.subscriptions.push(
+    vscode.window.onDidChangeTextEditorVisibleRanges((event) => {
+      if (event.textEditor.document.languageId === 'markdown') {
+        triggerUpdateDecorations(event.textEditor);
+      }
+    })
+  );
+
+  // Editor switch
+  context.subscriptions.push(
+    vscode.window.onDidChangeActiveTextEditor((editor) => {
+      if (editor?.document.languageId === 'markdown') {
+        triggerUpdateDecorations(editor);
+      }
+    })
+  );
+
+  // Configuration changes
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeConfiguration((event) => {
+      if (event.affectsConfiguration('calliope')) {
+        // Reinitialize decorations with new config
+        disposeDecorations();
+        initializeDecorations();
+
+        // Re-apply to active editor
+        if (vscode.window.activeTextEditor?.document.languageId === 'markdown') {
+          triggerUpdateDecorations(vscode.window.activeTextEditor);
+        }
+      }
+    })
+  );
+
+  // Register toggle command
+  context.subscriptions.push(
+    vscode.commands.registerCommand('calliope.toggle', () => {
+      const newState = toggleEnabled();
+      vscode.window.showInformationMessage(
+        `Calliope inline rendering ${newState ? 'enabled' : 'disabled'}`
+      );
+
+      // Update active editor
+      if (vscode.window.activeTextEditor?.document.languageId === 'markdown') {
+        triggerUpdateDecorations(vscode.window.activeTextEditor);
+      }
+    })
+  );
+
+  // Register checkbox toggle command
+  context.subscriptions.push(
+    vscode.commands.registerCommand('calliope.toggleCheckbox', () => {
+      const editor = vscode.window.activeTextEditor;
+      if (editor?.document.languageId === 'markdown') {
+        toggleCheckbox(editor);
+      }
+    })
+  );
+
+  // Register DocumentLinkProvider for Ctrl+click links
+  context.subscriptions.push(
+    vscode.languages.registerDocumentLinkProvider(
+      { language: 'markdown' },
+      new MarkdownLinkProvider()
+    )
+  );
+
+  // Register HoverProvider for link URL tooltips
+  context.subscriptions.push(
+    vscode.languages.registerHoverProvider(
+      { language: 'markdown' },
+      new MarkdownHoverProvider()
+    )
+  );
+}
+
+export function deactivate(): void {
+  disposeDecorations();
+  clearCache();
+}

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- Background -->
+  <rect width="256" height="256" rx="32" fill="#6366f1"/>
+
+  <!-- Quill pen -->
+  <g fill="#ffffff">
+    <!-- Feather body - elegant curve -->
+    <path d="
+      M 200 40
+      C 180 60, 160 80, 140 110
+      C 120 140, 100 170, 70 210
+      L 80 220
+      C 110 180, 130 150, 150 120
+      C 170 90, 190 70, 210 50
+      Z
+    "/>
+
+    <!-- Feather spine/rachis -->
+    <path d="
+      M 195 45
+      C 150 90, 110 150, 75 215
+      "
+      fill="none"
+      stroke="#6366f1"
+      stroke-width="3"
+      stroke-linecap="round"
+    />
+
+    <!-- Pen nib tip -->
+    <path d="
+      M 70 210
+      L 46 234
+      L 56 238
+      L 80 220
+      Z
+    "/>
+
+    <!-- Ink dot -->
+    <circle cx="42" cy="238" r="6"/>
+
+    <!-- Feather barbs - left side -->
+    <path d="M 170 75 C 150 85, 140 75, 130 65" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+    <path d="M 155 95 C 135 105, 125 95, 115 85" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+    <path d="M 140 115 C 120 125, 110 115, 100 105" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+  </g>
+</svg>
