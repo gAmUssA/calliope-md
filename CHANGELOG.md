@@ -5,6 +5,51 @@ All notable changes to the Calliope extension will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [0.4.1] - 2026-02-02
+
+### Added
+
+- **TypeScript Code Highlighting** — Language-specific syntax highlighting for inline code
+  - Use `ts:code` or `typescript:code` prefix for TypeScript highlighting
+  - Supports TypeScript-specific color theme tokens
+  - Language prefix displays with dimmed, italic styling
+  - Also supports `js:`, `javascript:`, `py:`, and `python:` prefixes
+  - Example: `ts:const message: string = "Hello"` renders with TypeScript colors
+
+### Changed
+
+- **Mermaid Rendering Optimization** — Switched from temp file approach to data URIs for improved performance
+  - SVG diagrams now rendered using data URIs with `vscode.Uri.parse()` pattern
+  - No file system writes required (faster, cleaner)
+  - No cleanup mechanism needed (data lives in memory cache only)
+  - Pattern inspired by markdown-inline-editor-vscode extension
+  - Diagrams render at natural size with generous spacing for readability
+
+## [0.4.0] - 2026-02-02
+
+### Added
+
+- **[EXPERIMENTAL] Mermaid Diagram Rendering** — Inline rendering of mermaid diagrams with ASCII fallback
+  - **Note**: Disabled by default due to VS Code decoration API limitations with complex diagrams
+  - Supports all mermaid diagram types (flowchart, sequence, class, state, gantt, pie, etc.)
+  - Three rendering modes: SVG (visual), ASCII (hover tooltip), or Auto (SVG with ASCII fallback)
+  - Applies three-state visibility (rendered, ghost, raw) like other markdown elements
+  - Asynchronous rendering with content-based caching for performance
+  - Graceful error handling logged to console
+  - ASCII mode shows indicator with hover tooltip (VS Code decoration API limitation prevents inline multiline text)
+  - Configurable via `calliope.renderMermaidDiagrams` setting (default: false)
+  - Configurable rendering mode via `calliope.mermaidRenderMode` setting (default: auto)
+  - Uses beautiful-mermaid library for high-quality SVG and Unicode/ASCII output
+  - Known limitation: Complex diagrams may render incorrectly due to VS Code decoration constraints
+
+## [0.3.1] - 2026-02-02
+
+### Changed
+
+- **Improved presentation mode error reporting** — Errors during presentation mode activation/deactivation are now shown via VS Code notifications instead of only being logged to the developer console. Users will see actionable error messages when settings fail to apply or restore.
+
 ## [0.3.0] - 2026-02-01
 
 ### Added

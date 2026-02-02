@@ -10,11 +10,16 @@ import {
 } from './decorations/decorationManager';
 import { handleSelectionChange, setCursorChangeCallback } from './handlers/cursorTracker';
 import { toggleCheckbox, detectCheckboxClick } from './handlers/checkboxToggle';
+import { detectMermaidDiagramClick } from './handlers/mermaidClick';
 import { MarkdownLinkProvider } from './providers/linkProvider';
 import { MarkdownHoverProvider } from './providers/hoverProvider';
 import { ImageHoverProvider } from './decorations/elements/images';
 import { clearCache } from './parser/parseCache';
 import { initializePresentationMode, disposePresentationMode, togglePresentationMode } from './presentationMode';
+import { cleanupUnusedSvgFiles, clearMermaidCaches, MermaidHoverProvider } from './decorations/elements/mermaidDiagrams';
+
+// Re-export for testing
+export { initializePresentationMode, togglePresentationMode } from './presentationMode';
 
 let previousSelection: vscode.Selection | undefined;
 
@@ -41,6 +46,8 @@ export function activate(context: vscode.ExtensionContext): void {
       const editor = vscode.window.activeTextEditor;
       if (editor && event.document === editor.document && event.document.languageId === 'markdown') {
         triggerUpdateDecorations(editor);
+        // Cleanup unused mermaid SVG files periodically
+        cleanupUnusedSvgFiles();
       }
     })
   );
@@ -51,6 +58,10 @@ export function activate(context: vscode.ExtensionContext): void {
       if (event.textEditor.document.languageId === 'markdown') {
         // Check for checkbox click
         detectCheckboxClick(event.textEditor, previousSelection);
+        
+        // Check for mermaid diagram click
+        detectMermaidDiagramClick(event.textEditor, previousSelection);
+        
         previousSelection = event.selections[0];
 
         // Handle visibility state changes
@@ -89,6 +100,15 @@ export function activate(context: vscode.ExtensionContext): void {
         if (vscode.window.activeTextEditor?.document.languageId === 'markdown') {
           triggerUpdateDecorations(vscode.window.activeTextEditor);
         }
+      }
+    })
+  );
+
+  // Register internal command for async decoration updates (used by mermaid rendering)
+  context.subscriptions.push(
+    vscode.commands.registerCommand('calliope.internal.updateDecorations', () => {
+      if (vscode.window.activeTextEditor?.document.languageId === 'markdown') {
+        triggerUpdateDecorations(vscode.window.activeTextEditor);
       }
     })
   );
@@ -142,6 +162,14 @@ export function activate(context: vscode.ExtensionContext): void {
     )
   );
 
+  // Register HoverProvider for mermaid ASCII diagrams
+  context.subscriptions.push(
+    vscode.languages.registerHoverProvider(
+      { language: 'markdown' },
+      new MermaidHoverProvider()
+    )
+  );
+
   // Register presentation mode toggle command
   context.subscriptions.push(
     vscode.commands.registerCommand('calliope.togglePresentationMode', async () => {
@@ -154,4 +182,5 @@ export function deactivate(): void {
   disposeDecorations();
   disposePresentationMode();
   clearCache();
+  cleanupUnusedSvgFiles();
 }

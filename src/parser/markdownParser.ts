@@ -247,9 +247,18 @@ function extractInlineCode(node: MdastNode, text: string, inlineCodes: InlineCod
   if (!node.position) return;
 
   const pos = node.position;
+  const value = node.value || '';
+  
+  // Check for language prefix: `ts:code`, `js:code`, etc.
+  const langMatch = value.match(/^(ts|typescript|js|javascript|py|python):/i);
+  const language = langMatch ? langMatch[1].toLowerCase() : undefined;
+  
+  // Adjust content range if language prefix exists
+  const prefixLength = langMatch ? langMatch[0].length : 0;
 
   inlineCodes.push({
     type: 'inlineCode',
+    language,
     range: {
       start: { line: pos.start.line, column: pos.start.column, offset: pos.start.offset },
       end: { line: pos.end.line, column: pos.end.column, offset: pos.end.offset },
@@ -263,7 +272,7 @@ function extractInlineCode(node: MdastNode, text: string, inlineCodes: InlineCod
       end: { line: pos.end.line, column: pos.end.column, offset: pos.end.offset },
     },
     contentRange: {
-      start: { line: pos.start.line, column: pos.start.column + 1, offset: pos.start.offset + 1 },
+      start: { line: pos.start.line, column: pos.start.column + 1 + prefixLength, offset: pos.start.offset + 1 + prefixLength },
       end: { line: pos.end.line, column: pos.end.column - 1, offset: pos.end.offset - 1 },
     },
   });

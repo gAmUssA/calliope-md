@@ -111,6 +111,28 @@ def greet(name):
 Plain code block without language
 ```
 
+### Mermaid Diagrams (Experimental - Enable with calliope.renderMermaidDiagrams)
+
+Simple flowchart:
+
+```mermaid
+graph TD
+    A[Start] --> B{Is it working?}
+    B -->|Yes| C[Great!]
+    B -->|No| D[Debug]
+    D --> B
+    C --> E[End]
+```
+
+Sequence diagram:
+
+```mermaid
+sequenceDiagram
+    Alice->>John: Hello John, how are you?
+    John-->>Alice: Great!
+    Alice-)John: See you later!
+```
+
 ### Images
 
 ![Alt text for local image](./images/icon.svg)

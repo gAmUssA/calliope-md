@@ -40,6 +40,7 @@ export interface TaskListElement extends ParsedElement {
 
 export interface InlineCodeElement extends ParsedElement {
   type: 'inlineCode';
+  language?: string;  // Optional language identifier (e.g., 'ts', 'js', 'py')
   openMarkerRange: SourceRange;
   closeMarkerRange: SourceRange;
   contentRange: SourceRange;

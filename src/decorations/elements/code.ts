@@ -5,6 +5,8 @@ import { getVisibilityState, getCursorPositions } from '../visibilityState';
 
 export interface CodeDecorations {
   inlineCode: vscode.DecorationOptions[];
+  inlineCodeTypescript: vscode.DecorationOptions[];
+  inlineCodeLanguagePrefix: vscode.DecorationOptions[];
   syntaxHidden: vscode.DecorationOptions[];
   syntaxGhost: vscode.DecorationOptions[];
 }
@@ -15,6 +17,8 @@ export function createCodeDecorations(
 ): CodeDecorations {
   const result: CodeDecorations = {
     inlineCode: [],
+    inlineCodeTypescript: [],
+    inlineCodeLanguagePrefix: [],
     syntaxHidden: [],
     syntaxGhost: [],
   };
@@ -32,7 +36,23 @@ export function createCodeDecorations(
       code.contentRange.end.column - 1
     );
 
-    result.inlineCode.push({ range: contentRange });
+    // Apply language-specific highlighting for TypeScript
+    if (code.language === 'ts' || code.language === 'typescript') {
+      result.inlineCodeTypescript.push({ range: contentRange });
+      
+      // Add dimmed styling for the language prefix (ts:)
+      if (code.language) {
+        const prefixRange = new vscode.Range(
+          code.range.start.line - 1,
+          code.range.start.column,  // After opening backtick
+          code.range.start.line - 1,
+          code.contentRange.start.column - 1  // Before actual code content
+        );
+        result.inlineCodeLanguagePrefix.push({ range: prefixRange });
+      }
+    } else {
+      result.inlineCode.push({ range: contentRange });
+    }
 
     // Opening backtick decoration
     const openRange = new vscode.Range(
@@ -67,5 +87,7 @@ export function applyCodeDecorations(
   decorations: CodeDecorations
 ): void {
   editor.setDecorations(types.inlineCode, decorations.inlineCode);
+  editor.setDecorations(types.inlineCodeTypescript, decorations.inlineCodeTypescript);
+  editor.setDecorations(types.inlineCodeLanguagePrefix, decorations.inlineCodeLanguagePrefix);
   // Note: syntaxHidden and syntaxGhost are combined with other element types in the manager
 }

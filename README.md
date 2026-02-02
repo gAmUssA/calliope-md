@@ -29,9 +29,11 @@ Calliope brings Ulysses-style hybrid WYSIWYG editing to VS Code. Write in Markdo
 | `*italic*` | *italic* |
 | `~~strike~~` | ~~strike~~ |
 | `` `code` `` | `code` with background |
+| `` `ts:code` `` | TypeScript-highlighted code |
 | `[link](url)` | [link](#) (clickable, URL hidden) |
 | `- [ ] task` | ☐ task (clickable checkbox) |
 | `- [x] done` | ☑ ~~done~~ (strikethrough) |
+| ` ```mermaid ` | Inline diagram (SVG or ASCII art) |
 
 ### Three-State Visibility
 
@@ -72,13 +74,20 @@ code --install-extension calliope-md-0.1.0.vsix
 | `calliope.renderTaskLists` | `true` | Render task checkboxes |
 | `calliope.renderLinks` | `true` | Render links with hidden URLs |
 | `calliope.renderInlineCode` | `true` | Render inline code with background |
+| `calliope.renderMermaidDiagrams` | `false` | **[EXPERIMENTAL]** Render mermaid diagrams inline |
+| `calliope.mermaidRenderMode` | `auto` | Diagram mode: `svg` (image), `ascii` (hover tooltip), `auto` (SVG with ASCII fallback) |
 
 ## Tips
 
 - **Click checkboxes** to toggle task completion
 - **Ctrl+click links** to open URLs in browser
 - **Hover links** to see the URL tooltip
+- **Hover mermaid code blocks** in ASCII mode to view the ASCII diagram
 - Use `Calliope: Toggle` to quickly switch between rendered and raw view
+- **TypeScript highlighting** — Add `ts:` prefix to inline code for language-specific highlighting (e.g., `` `ts:const x: number = 5` ``)
+  - Supported prefixes: `ts:`, `typescript:`, `js:`, `javascript:`, `py:`, `python:`
+
+**Note on ASCII mode**: Due to VS Code decoration API limitations, ASCII diagrams cannot be rendered inline. They appear as an indicator with hover tooltip support.
 
 ## Requirements
 

@@ -23,6 +23,8 @@ export interface DecorationTypes {
 
   // Inline code
   inlineCode: vscode.TextEditorDecorationType;
+  inlineCodeTypescript: vscode.TextEditorDecorationType;
+  inlineCodeLanguagePrefix: vscode.TextEditorDecorationType;
 
   // Links
   linkText: vscode.TextEditorDecorationType;
@@ -43,6 +45,11 @@ export interface DecorationTypes {
   // Phase 2: Lists
   listBullet: vscode.TextEditorDecorationType;
   listNumber: vscode.TextEditorDecorationType;
+
+  // Mermaid diagrams
+  mermaidDiagramRendered: vscode.TextEditorDecorationType;
+  mermaidDiagramGhost: vscode.TextEditorDecorationType;
+  mermaidDiagramError: vscode.TextEditorDecorationType;
 }
 
 export function createDecorationTypes(ghostOpacity: number): DecorationTypes {
@@ -115,6 +122,17 @@ export function createDecorationTypes(ghostOpacity: number): DecorationTypes {
       backgroundColor: new vscode.ThemeColor('textCodeBlock.background'),
       borderRadius: '3px',
     }),
+    inlineCodeTypescript: vscode.window.createTextEditorDecorationType({
+      backgroundColor: new vscode.ThemeColor('textCodeBlock.background'),
+      color: new vscode.ThemeColor('variable.other.readwrite.ts'),
+      borderRadius: '3px',
+    }),
+    inlineCodeLanguagePrefix: vscode.window.createTextEditorDecorationType({
+      backgroundColor: new vscode.ThemeColor('textCodeBlock.background'),
+      opacity: '0.5',
+      fontStyle: 'italic',
+      borderRadius: '3px',
+    }),
 
     // Link text style
     linkText: vscode.window.createTextEditorDecorationType({
@@ -156,6 +174,18 @@ export function createDecorationTypes(ghostOpacity: number): DecorationTypes {
     }),
     listNumber: vscode.window.createTextEditorDecorationType({
       fontWeight: '600',
+    }),
+
+    // Mermaid diagrams
+    mermaidDiagramRendered: vscode.window.createTextEditorDecorationType({
+      opacity: '0',
+      letterSpacing: '-1000px',
+    }),
+    mermaidDiagramGhost: vscode.window.createTextEditorDecorationType({
+      opacity: ghostOpacity.toString(),
+    }),
+    mermaidDiagramError: vscode.window.createTextEditorDecorationType({
+      color: new vscode.ThemeColor('errorForeground'),
     }),
   };
 }

@@ -110,7 +110,8 @@ async function applyPresentationSettings(): Promise<void> {
       const settingName = rest.join('.');
       await vscode.workspace.getConfiguration(section).update(settingName, value, vscode.ConfigurationTarget.Global);
     } catch (err) {
-      console.error(`Failed to apply setting ${key}:`, err);
+      const msg = err instanceof Error ? err.message : String(err);
+      vscode.window.showErrorMessage(`Failed to apply setting ${key}: ${msg}`);
     }
   }
 
@@ -121,14 +122,16 @@ async function applyPresentationSettings(): Promise<void> {
   try {
     await vscode.commands.executeCommand('workbench.action.closeSidebar');
   } catch (err) {
-    console.error('Failed to close sidebar:', err);
+    const msg = err instanceof Error ? err.message : String(err);
+    vscode.window.showErrorMessage(`Failed to close sidebar: ${msg}`);
   }
 
   // Close panel (terminal, output, etc.)
   try {
     await vscode.commands.executeCommand('workbench.action.closePanel');
   } catch (err) {
-    console.error('Failed to close panel:', err);
+    const msg = err instanceof Error ? err.message : String(err);
+    vscode.window.showErrorMessage(`Failed to close panel: ${msg}`);
   }
 }
 
@@ -145,7 +148,8 @@ async function restoreOriginalSettings(originalSettings: Record<string, unknown>
       const settingName = rest.join('.');
       await vscode.workspace.getConfiguration(section).update(settingName, value, vscode.ConfigurationTarget.Global);
     } catch (err) {
-      errors.push(`Failed to restore ${key}: ${err}`);
+      const msg = err instanceof Error ? err.message : String(err);
+      errors.push(`Failed to restore ${key}: ${msg}`);
     }
   }
 
@@ -154,11 +158,12 @@ async function restoreOriginalSettings(originalSettings: Record<string, unknown>
     const originalColors = originalSettings['workbench.colorCustomizations'] as Record<string, unknown> || {};
     await restoreOriginalColors(originalColors);
   } catch (err) {
-    errors.push(`Failed to restore color customizations: ${err}`);
+    const msg = err instanceof Error ? err.message : String(err);
+    errors.push(`Failed to restore color customizations: ${msg}`);
   }
 
   if (errors.length > 0) {
-    vscode.window.showWarningMessage(`Some settings could not be restored: ${errors.join(', ')}`);
+    vscode.window.showErrorMessage(`Some settings could not be restored: ${errors.join(', ')}`);
   }
 }
 
