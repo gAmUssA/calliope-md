@@ -16,6 +16,7 @@ import { createHorizontalRuleDecorations, applyHorizontalRuleDecorations } from 
 import { createCodeBlockDecorations, applyCodeBlockDecorations } from './elements/codeBlocks';
 import { createImageDecorations, applyImageDecorations } from './elements/images';
 import { createListDecorations, applyListDecorations } from './elements/lists';
+import { createMetadataDecorations, applyMetadataDecorations } from './elements/metadata';
 
 let decorationTypes: DecorationTypes | undefined;
 let updateTimeout: NodeJS.Timeout | undefined;
@@ -224,6 +225,17 @@ function updateDecorations(editor: vscode.TextEditor): void {
     clearListDecorations(editor);
   }
 
+  // Metadata (YAML frontmatter)
+  if (config.renderMetadata) {
+    const metadataDecos = createMetadataDecorations(
+      filterByVisibleRange(parsed.metadata, visibleRange),
+      editor
+    );
+    applyMetadataDecorations(metadataDecos, editor, decorationTypes);
+  } else {
+    clearMetadataDecorations(editor);
+  }
+
   // Apply combined syntax decorations
   editor.setDecorations(decorationTypes.syntaxHidden, allSyntaxHidden);
   editor.setDecorations(decorationTypes.syntaxGhost, allSyntaxGhost);
@@ -291,6 +303,7 @@ function clearAllDecorations(editor: vscode.TextEditor): void {
   editor.setDecorations(decorationTypes.imagePreview, emptyArray);
   editor.setDecorations(decorationTypes.listBullet, emptyArray);
   editor.setDecorations(decorationTypes.listNumber, emptyArray);
+  editor.setDecorations(decorationTypes.metadataDim, emptyArray);
 
   // Shared syntax decorations
   editor.setDecorations(decorationTypes.syntaxHidden, emptyArray);
@@ -359,4 +372,9 @@ function clearListDecorations(editor: vscode.TextEditor): void {
   if (!decorationTypes) return;
   editor.setDecorations(decorationTypes.listBullet, []);
   editor.setDecorations(decorationTypes.listNumber, []);
+}
+
+function clearMetadataDecorations(editor: vscode.TextEditor): void {
+  if (!decorationTypes) return;
+  editor.setDecorations(decorationTypes.metadataDim, []);
 }

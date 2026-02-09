@@ -15,6 +15,7 @@ import type {
   FencedCodeElement,
   ImageElement,
   ListItemElement,
+  MetadataElement,
   SourceRange,
 } from './types';
 
@@ -37,7 +38,75 @@ interface MdastNode extends Node {
 
 const parser = unified().use(remarkParse).use(remarkGfm);
 
+/**
+ * Detect YAML frontmatter at the start of a document.
+ * Frontmatter must start with `---` on line 1 and have a closing `---`.
+ * Returns null if no frontmatter is detected.
+ */
+function detectFrontmatter(text: string): MetadataElement | null {
+  // Check if document starts with ---
+  if (!text.startsWith('---')) {
+    return null;
+  }
+
+  const lines = text.split('\n');
+  
+  // Find closing --- delimiter (must be on its own line)
+  let closingLine = -1;
+  for (let i = 1; i < lines.length; i++) {
+    if (lines[i].trim() === '---') {
+      closingLine = i;
+      break;
+    }
+  }
+
+  // No closing delimiter found - treat as horizontal rule
+  if (closingLine === -1) {
+    return null;
+  }
+
+  // Calculate positions
+  const startOffset = 0;
+  const startLine = 1;
+  const startColumn = 1;
+
+  // Calculate end position (after closing ---)
+  let endOffset = 0;
+  for (let i = 0; i <= closingLine; i++) {
+    endOffset += lines[i].length + 1; // +1 for newline
+  }
+
+  const endLine = closingLine + 1;
+  const endColumn = lines[closingLine].length + 1;
+
+  // Content is between the delimiters
+  const contentStartOffset = lines[0].length + 1; // After first ---\n
+  let contentEndOffset = 0;
+  for (let i = 0; i < closingLine; i++) {
+    contentEndOffset += lines[i].length + 1;
+  }
+
+  return {
+    type: 'metadata',
+    range: {
+      start: { line: startLine, column: startColumn, offset: startOffset },
+      end: { line: endLine, column: endColumn, offset: endOffset },
+    },
+    contentRange: {
+      start: { line: 2, column: 1, offset: contentStartOffset },
+      end: { line: closingLine, column: 1, offset: contentEndOffset },
+    },
+  };
+}
+
 export function parseMarkdown(text: string): ParsedDocument {
+  // Detect frontmatter before AST parsing
+  const metadata: MetadataElement[] = [];
+  const frontmatter = detectFrontmatter(text);
+  if (frontmatter) {
+    metadata.push(frontmatter);
+  }
+
   const tree = parser.parse(text) as MdastNode;
 
   const headers: HeaderElement[] = [];
@@ -100,17 +169,41 @@ export function parseMarkdown(text: string): ParsedDocument {
     }
   });
 
+  // Filter out any elements that are within frontmatter range to prevent conflicts
+  const frontmatterEndLine = frontmatter?.range.end.line ?? 0;
+  
+  const filteredHeaders = frontmatter
+    ? headers.filter(h => h.range.start.line > frontmatterEndLine)
+    : headers;
+    
+  const filteredEmphasis = frontmatter
+    ? emphasis.filter(e => e.range.start.line > frontmatterEndLine)
+    : emphasis;
+    
+  const filteredInlineCodes = frontmatter
+    ? inlineCodes.filter(c => c.range.start.line > frontmatterEndLine)
+    : inlineCodes;
+    
+  const filteredLinks = frontmatter
+    ? links.filter(l => l.range.start.line > frontmatterEndLine)
+    : links;
+    
+  const filteredHorizontalRules = frontmatter 
+    ? horizontalRules.filter(hr => hr.range.start.line > frontmatterEndLine)
+    : horizontalRules;
+
   return {
-    headers,
-    emphasis,
+    headers: filteredHeaders,
+    emphasis: filteredEmphasis,
     taskLists,
-    inlineCodes,
-    links,
+    inlineCodes: filteredInlineCodes,
+    links: filteredLinks,
     blockquotes,
-    horizontalRules,
+    horizontalRules: filteredHorizontalRules,
     fencedCodes,
     images,
     listItems,
+    metadata,
   };
 }
 

@@ -92,6 +92,11 @@ export interface ListItemElement extends ParsedElement {
   depth: number;                  // Nesting level (0 = top level)
 }
 
+export interface MetadataElement extends ParsedElement {
+  type: 'metadata';
+  contentRange: SourceRange;      // The frontmatter content (between delimiters)
+}
+
 export interface ParsedDocument {
   headers: HeaderElement[];
   emphasis: EmphasisElement[];
@@ -103,6 +108,7 @@ export interface ParsedDocument {
   fencedCodes: FencedCodeElement[];
   images: ImageElement[];
   listItems: ListItemElement[];
+  metadata: MetadataElement[];
 }
 
 export type AnyParsedElement =
@@ -115,4 +121,5 @@ export type AnyParsedElement =
   | HorizontalRuleElement
   | FencedCodeElement
   | ImageElement
-  | ListItemElement;
+  | ListItemElement
+  | MetadataElement;

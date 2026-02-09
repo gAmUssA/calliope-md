@@ -50,6 +50,9 @@ export interface DecorationTypes {
   mermaidDiagramRendered: vscode.TextEditorDecorationType;
   mermaidDiagramGhost: vscode.TextEditorDecorationType;
   mermaidDiagramError: vscode.TextEditorDecorationType;
+
+  // Metadata/frontmatter
+  metadataDim: vscode.TextEditorDecorationType;
 }
 
 export function createDecorationTypes(ghostOpacity: number): DecorationTypes {
@@ -186,6 +189,12 @@ export function createDecorationTypes(ghostOpacity: number): DecorationTypes {
     }),
     mermaidDiagramError: vscode.window.createTextEditorDecorationType({
       color: new vscode.ThemeColor('errorForeground'),
+    }),
+
+    // Metadata/frontmatter - dim to distinguish from content
+    metadataDim: vscode.window.createTextEditorDecorationType({
+      opacity: '0.6',
+      isWholeLine: true,
     }),
   };
 }

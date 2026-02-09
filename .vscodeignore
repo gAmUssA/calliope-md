@@ -13,6 +13,12 @@ docs/**
 .history/**
 .windsurf/**
 test-calliope.md
+test-*.md
+debug-*.js
+1.flink.sql
 Makefile
 images/icon.svg
 *.vsix
+*.vsix.zip
+.github/**
+!media/**

@@ -16,7 +16,8 @@ import { MarkdownHoverProvider } from './providers/hoverProvider';
 import { ImageHoverProvider } from './decorations/elements/images';
 import { clearCache } from './parser/parseCache';
 import { initializePresentationMode, disposePresentationMode, togglePresentationMode } from './presentationMode';
-import { cleanupUnusedSvgFiles, clearMermaidCaches, MermaidHoverProvider } from './decorations/elements/mermaidDiagrams';
+import { clearMermaidCaches } from './decorations/elements/mermaidDiagrams';
+import { initMermaidRenderer, disposeMermaidRenderer } from './mermaid';
 
 // Re-export for testing
 export { initializePresentationMode, togglePresentationMode } from './presentationMode';
@@ -26,6 +27,9 @@ let previousSelection: vscode.Selection | undefined;
 export function activate(context: vscode.ExtensionContext): void {
   // Initialize decoration types
   initializeDecorations();
+
+  // Initialize mermaid webview renderer
+  initMermaidRenderer(context);
 
   // Initialize presentation mode
   initializePresentationMode(context);
@@ -46,8 +50,6 @@ export function activate(context: vscode.ExtensionContext): void {
       const editor = vscode.window.activeTextEditor;
       if (editor && event.document === editor.document && event.document.languageId === 'markdown') {
         triggerUpdateDecorations(editor);
-        // Cleanup unused mermaid SVG files periodically
-        cleanupUnusedSvgFiles();
       }
     })
   );
@@ -162,12 +164,14 @@ export function activate(context: vscode.ExtensionContext): void {
     )
   );
 
-  // Register HoverProvider for mermaid ASCII diagrams
+  // Re-render mermaid diagrams on theme change
   context.subscriptions.push(
-    vscode.languages.registerHoverProvider(
-      { language: 'markdown' },
-      new MermaidHoverProvider()
-    )
+    vscode.window.onDidChangeActiveColorTheme(() => {
+      clearMermaidCaches();
+      if (vscode.window.activeTextEditor?.document.languageId === 'markdown') {
+        triggerUpdateDecorations(vscode.window.activeTextEditor);
+      }
+    })
   );
 
   // Register presentation mode toggle command
@@ -179,8 +183,8 @@ export function activate(context: vscode.ExtensionContext): void {
 }
 
 export function deactivate(): void {
+  disposeMermaidRenderer();
   disposeDecorations();
   disposePresentationMode();
   clearCache();
-  cleanupUnusedSvgFiles();
 }

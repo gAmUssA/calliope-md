@@ -18,6 +18,7 @@ watch:
 # Clean build artifacts
 clean:
 	rm -rf out/
+	rm -rf media/
 	rm -rf node_modules/
 	rm -f *.vsix
 

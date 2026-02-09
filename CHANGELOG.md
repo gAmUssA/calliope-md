@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-02-09
+
+### Changed
+
+- **Mermaid Rendering Engine Overhaul** — Replaced `beautiful-mermaid` library with official `mermaid.js` via hidden webview
+  - Full diagram type support (flowchart, sequence, class, state, gantt, pie, mindmap, etc.)
+  - SVG post-processing pipeline with cheerio: dimension adjustment, viewBox fixes, precision optimization
+  - LRU cache (250 entries max) prevents unbounded memory growth
+  - Visual error SVGs displayed inline when rendering fails (themed for dark/light modes)
+  - Line-height-based dimension calculation for proper diagram sizing
+  - Theme change listener automatically re-renders diagrams
+  - Removed ASCII rendering mode and `calliope.mermaidRenderMode` setting
+  - Removed `beautiful-mermaid` dependency; added `mermaid` and `cheerio`
+
+### Added
+
+- **Metadata/Frontmatter Rendering** — YAML frontmatter blocks are dimmed to visually separate them from content
+  - Detects `---` delimited frontmatter at document start
+  - Applies three-state visibility (rendered/ghost/raw) like other elements
+  - Configurable via `calliope.renderMetadata` setting (default: true)
+
 ## [0.4.1] - 2026-02-02
 
 ### Added
