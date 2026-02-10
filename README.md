@@ -33,7 +33,13 @@ Calliope brings Ulysses-style hybrid WYSIWYG editing to VS Code. Write in Markdo
 | `[link](url)` | [link](#) (clickable, URL hidden) |
 | `- [ ] task` | ☐ task (clickable checkbox) |
 | `- [x] done` | ☑ ~~done~~ (strikethrough) |
-| ` ```mermaid ` | Inline diagram (SVG or ASCII art) |
+| `> blockquote` | Styled with left border and background |
+| `---` | Visual horizontal separator |
+| `` ```lang `` | Dimmed fence markers, preserved syntax |
+| `![alt](img)` | Inline thumbnail preview (200px) |
+| `- item` / `1. item` | Styled bullets (•) and numbers |
+| `---`/YAML/`---` | Dimmed frontmatter block |
+| `` ```mermaid `` | Inline diagram (SVG or ASCII art) |
 
 ### Three-State Visibility
 
@@ -53,7 +59,7 @@ Calliope brings Ulysses-style hybrid WYSIWYG editing to VS Code. Write in Markdo
 ### From VSIX
 
 ```bash
-code --install-extension calliope-md-0.1.0.vsix
+code --install-extension calliope-md-0.4.3.vsix
 ```
 
 ## Commands
@@ -62,6 +68,7 @@ code --install-extension calliope-md-0.1.0.vsix
 |---------|-------------|
 | `Calliope: Toggle Inline Rendering` | Enable/disable all rendering |
 | `Calliope: Toggle Task Checkbox` | Toggle checkbox at cursor |
+| `Calliope: Toggle Presentation Mode` | Distraction-free mode for demos |
 
 ## Settings
 
@@ -74,15 +81,23 @@ code --install-extension calliope-md-0.1.0.vsix
 | `calliope.renderTaskLists` | `true` | Render task checkboxes |
 | `calliope.renderLinks` | `true` | Render links with hidden URLs |
 | `calliope.renderInlineCode` | `true` | Render inline code with background |
+| `calliope.renderBlockquotes` | `true` | Render blockquotes with left border |
+| `calliope.renderHorizontalRules` | `true` | Render horizontal rules as separators |
+| `calliope.renderCodeBlocks` | `true` | Style fenced code block delimiters |
+| `calliope.renderImages` | `true` | Render inline image previews |
+| `calliope.renderLists` | `true` | Render list markers with bullet styling |
+| `calliope.renderMetadata` | `true` | Dim YAML frontmatter blocks |
 | `calliope.renderMermaidDiagrams` | `false` | **[EXPERIMENTAL]** Render mermaid diagrams inline |
-| `calliope.mermaidRenderMode` | `auto` | Diagram mode: `svg` (image), `ascii` (hover tooltip), `auto` (SVG with ASCII fallback) |
+| `calliope.mermaidRenderMode` | `auto` | Diagram mode: `svg`, `ascii`, or `auto` |
 
 ## Tips
 
 - **Click checkboxes** to toggle task completion
 - **Ctrl+click links** to open URLs in browser
 - **Hover links** to see the URL tooltip
+- **Hover images** to see full-size preview
 - **Hover mermaid code blocks** in ASCII mode to view the ASCII diagram
+- **Presentation mode** — Increases font size, hides UI chrome, applies clean background for demos
 - Use `Calliope: Toggle` to quickly switch between rendered and raw view
 - **TypeScript highlighting** — Add `ts:` prefix to inline code for language-specific highlighting (e.g., `` `ts:const x: number = 5` ``)
   - Supported prefixes: `ts:`, `typescript:`, `js:`, `javascript:`, `py:`, `python:`

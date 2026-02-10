@@ -3,7 +3,7 @@
   "type": "commonjs",
   "displayName": "Calliope - Hybrid Markdown Editor",
   "description": "Ulysses-style inline Markdown rendering. Write in Markdown, see it rendered — syntax hides until you need it.",
-  "version": "0.5.0",
+  "version": "0.4.3",
   "publisher": "vikgamov",
   "license": "MIT",
   "icon": "images/icon.png",
@@ -56,16 +56,6 @@
         "title": "Calliope: Toggle Presentation Mode"
       }
     ],
-    "views": {
-      "explorer": [
-        {
-          "type": "webview",
-          "id": "calliope.mermaidRenderer",
-          "name": "Mermaid Renderer",
-          "visibility": "hidden"
-        }
-      ]
-    },
     "configuration": {
       "title": "Calliope",
       "properties": {
@@ -134,20 +124,34 @@
         "calliope.renderMermaidDiagrams": {
           "type": "boolean",
           "default": false,
-          "description": "Enable inline rendering of mermaid diagrams (uses mermaid.js via webview)"
+          "description": "[EXPERIMENTAL] Enable inline rendering of mermaid diagrams"
+        },
+        "calliope.mermaidRenderMode": {
+          "type": "string",
+          "enum": [
+            "svg",
+            "ascii",
+            "auto"
+          ],
+          "default": "auto",
+          "enumDescriptions": [
+            "Render as SVG images (visual diagrams)",
+            "Render as ASCII/Unicode text art (hover to view)",
+            "Try SVG first, fallback to ASCII on error"
+          ],
+          "description": "Mermaid diagram rendering mode"
         },
         "calliope.renderMetadata": {
           "type": "boolean",
           "default": true,
-          "description": "Dim YAML frontmatter blocks to distinguish from content"
+          "description": "Render YAML frontmatter/metadata blocks with dimming"
         }
       }
     }
   },
   "scripts": {
-    "copy-mermaid": "mkdir -p media/mermaid/chunks/mermaid.esm.min && cp node_modules/mermaid/dist/mermaid.esm.min.mjs media/mermaid/ && find node_modules/mermaid/dist/chunks/mermaid.esm.min -name '*.mjs' -not -name '*.map' -exec cp {} media/mermaid/chunks/mermaid.esm.min/ \\;",
-    "compile": "npm run copy-mermaid && esbuild src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
-    "watch": "npm run copy-mermaid && esbuild src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node --watch",
+    "compile": "esbuild src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
+    "watch": "npm run compile -- --watch",
     "package": "vsce package",
     "test": "mocha 'test/**/*.test.js' --exit"
   },
@@ -164,8 +168,7 @@
     "@types/sinon": "^10.0.6"
   },
   "dependencies": {
-    "cheerio": "^1.0.0",
-    "mermaid": "^11.4.1",
+    "beautiful-mermaid": "^0.1.3",
     "remark-gfm": "^4.0.0",
     "remark-parse": "^11.0.0",
     "unified": "^11.0.0",

@@ -21,4 +21,3 @@ images/icon.svg
 *.vsix
 *.vsix.zip
 .github/**
-!media/**
