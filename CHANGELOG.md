@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.4] - 2026-02-12
+
+### Changed
+
+- **Larger Header Font Sizes** — Increased heading sizes for a clearly visible hierarchy
+  - H1: 1.15em → 1.5em, H2: 1.1em → 1.35em, H3: 1.05em → 1.2em, H4: 1.0em → 1.1em
+  - Adjacent heading levels are now visually distinguishable when `#` markers are hidden
+
+### Added
+
+- **Metadata/Frontmatter Rendering** — YAML frontmatter blocks are dimmed to visually separate them from content
+  - Detects `---` delimited frontmatter at document start
+  - Applies three-state visibility (rendered/ghost/raw) like other elements
+  - Configurable via `calliope.renderMetadata` setting (default: true)
+
+- **Updated README** — Added all Phase 2 elements, presentation mode, and complete settings table
+
 ## [0.4.1] - 2026-02-02
 
 ### Added

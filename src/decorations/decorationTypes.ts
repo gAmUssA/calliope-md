@@ -57,23 +57,22 @@ export interface DecorationTypes {
 
 export function createDecorationTypes(ghostOpacity: number): DecorationTypes {
   return {
-    // Headers - subtle size increases for distraction-free writing
-    // Goal: noticeable hierarchy without being jarring
+    // Headers - clear size progression for readable hierarchy
     h1Content: vscode.window.createTextEditorDecorationType({
       fontWeight: 'bold',
-      textDecoration: 'none; font-size: 1.15em;',
+      textDecoration: 'none; font-size: 1.5em;',
     }),
     h2Content: vscode.window.createTextEditorDecorationType({
       fontWeight: 'bold',
-      textDecoration: 'none; font-size: 1.1em;',
+      textDecoration: 'none; font-size: 1.35em;',
     }),
     h3Content: vscode.window.createTextEditorDecorationType({
       fontWeight: 'bold',
-      textDecoration: 'none; font-size: 1.05em;',
+      textDecoration: 'none; font-size: 1.2em;',
     }),
     h4Content: vscode.window.createTextEditorDecorationType({
       fontWeight: 'bold',
-      // No size increase, just bold
+      textDecoration: 'none; font-size: 1.1em;',
     }),
     h5Content: vscode.window.createTextEditorDecorationType({
       fontWeight: '600',
