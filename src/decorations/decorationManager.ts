@@ -17,6 +17,7 @@ import { createCodeBlockDecorations, applyCodeBlockDecorations } from './element
 import { createImageDecorations, applyImageDecorations } from './elements/images';
 import { createListDecorations, applyListDecorations } from './elements/lists';
 import { createMetadataDecorations, applyMetadataDecorations } from './elements/metadata';
+import { createTableDecorations, applyTableDecorations, clearTableDecorations } from './elements/tables';
 
 let decorationTypes: DecorationTypes | undefined;
 let updateTimeout: NodeJS.Timeout | undefined;
@@ -69,8 +70,13 @@ export function triggerUpdateDecorations(editor: vscode.TextEditor): void {
 
 /**
  * Updates decorations immediately (for cursor movement).
+ * Also cancels any pending debounced update to prevent double-application.
  */
 export function updateDecorationsImmediate(editor: vscode.TextEditor): void {
+  if (updateTimeout) {
+    clearTimeout(updateTimeout);
+    updateTimeout = undefined;
+  }
   updateDecorations(editor);
 }
 
@@ -225,6 +231,24 @@ function updateDecorations(editor: vscode.TextEditor): void {
     clearListDecorations(editor);
   }
 
+  // Tables
+  if (config.renderTables && parsed.tables.length > 0) {
+    try {
+      const tableDecos = createTableDecorations(
+        filterByVisibleRange(parsed.tables, visibleRange),
+        editor
+      );
+      applyTableDecorations(editor, decorationTypes, tableDecos);
+      // Tables only use syntaxGhost (no syntaxHidden) to avoid layout shifts
+      allSyntaxGhost.push(...tableDecos.syntaxGhost);
+    } catch {
+      // Safety: never let table errors crash the decoration pipeline
+      clearTableDecorations(editor, decorationTypes);
+    }
+  } else {
+    clearTableDecorations(editor, decorationTypes);
+  }
+
   // Metadata (YAML frontmatter)
   if (config.renderMetadata) {
     const metadataDecos = createMetadataDecorations(
@@ -304,6 +328,11 @@ function clearAllDecorations(editor: vscode.TextEditor): void {
   editor.setDecorations(decorationTypes.listBullet, emptyArray);
   editor.setDecorations(decorationTypes.listNumber, emptyArray);
   editor.setDecorations(decorationTypes.metadataDim, emptyArray);
+
+  // Tables
+  editor.setDecorations(decorationTypes.tableHeaderCell, emptyArray);
+  editor.setDecorations(decorationTypes.tableBodyCell, emptyArray);
+  editor.setDecorations(decorationTypes.tableSeparatorLine, emptyArray);
 
   // Shared syntax decorations
   editor.setDecorations(decorationTypes.syntaxHidden, emptyArray);

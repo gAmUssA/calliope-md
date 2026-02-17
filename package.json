@@ -3,7 +3,7 @@
   "type": "commonjs",
   "displayName": "Calliope - Hybrid Markdown Editor",
   "description": "Ulysses-style inline Markdown rendering. Write in Markdown, see it rendered — syntax hides until you need it.",
-  "version": "0.4.4",
+  "version": "0.5.1",
   "publisher": "vikgamov",
   "license": "MIT",
   "icon": "images/icon.png",
@@ -145,6 +145,11 @@
           "type": "boolean",
           "default": true,
           "description": "Render YAML frontmatter/metadata blocks with dimming"
+        },
+        "calliope.renderTables": {
+          "type": "boolean",
+          "default": false,
+          "description": "[EXPERIMENTAL] Render tables with styled headers, dimmed pipe delimiters, and alignment indicators"
         }
       }
     }

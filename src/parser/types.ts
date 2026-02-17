@@ -97,6 +97,27 @@ export interface MetadataElement extends ParsedElement {
   contentRange: SourceRange;      // The frontmatter content (between delimiters)
 }
 
+export type TableAlignType = 'left' | 'center' | 'right' | null;
+
+export interface TableCellElement {
+  content: string;                // Trimmed cell text
+  contentRange: SourceRange;      // Range of the cell content
+  pipeRange: SourceRange;         // Range of the leading | delimiter
+}
+
+export interface TableRowElement {
+  cells: TableCellElement[];
+  isHeader: boolean;              // True for the first row
+  range: SourceRange;
+}
+
+export interface TableElement extends ParsedElement {
+  type: 'table';
+  rows: TableRowElement[];
+  separatorRange: SourceRange;    // The | --- | --- | line
+  align: TableAlignType[];        // Per-column alignment
+}
+
 export interface ParsedDocument {
   headers: HeaderElement[];
   emphasis: EmphasisElement[];
@@ -109,6 +130,7 @@ export interface ParsedDocument {
   images: ImageElement[];
   listItems: ListItemElement[];
   metadata: MetadataElement[];
+  tables: TableElement[];
 }
 
 export type AnyParsedElement =
@@ -122,4 +144,5 @@ export type AnyParsedElement =
   | FencedCodeElement
   | ImageElement
   | ListItemElement
-  | MetadataElement;
+  | MetadataElement
+  | TableElement;

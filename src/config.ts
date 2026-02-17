@@ -16,6 +16,7 @@ export interface CalliopeConfig {
   renderMermaidDiagrams: boolean;
   mermaidRenderMode: 'svg' | 'ascii' | 'auto';
   renderMetadata: boolean;
+  renderTables: boolean;
 }
 
 export function getConfig(): CalliopeConfig {
@@ -37,5 +38,6 @@ export function getConfig(): CalliopeConfig {
     renderMermaidDiagrams: config.get<boolean>('renderMermaidDiagrams', false),
     mermaidRenderMode: config.get<'svg' | 'ascii' | 'auto'>('mermaidRenderMode', 'auto'),
     renderMetadata: config.get<boolean>('renderMetadata', true),
+    renderTables: config.get<boolean>('renderTables', false),
   };
 }

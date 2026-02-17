@@ -1,7 +1,7 @@
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
-import { visit } from 'unist-util-visit';
+import { visit, SKIP } from 'unist-util-visit';
 import type { Node, Parent } from 'unist';
 import type {
   ParsedDocument,
@@ -16,6 +16,8 @@ import type {
   ImageElement,
   ListItemElement,
   MetadataElement,
+  TableElement,
+  TableAlignType,
   SourceRange,
 } from './types';
 
@@ -34,6 +36,7 @@ interface MdastNode extends Node {
   ordered?: boolean;
   start?: number;
   spread?: boolean;
+  align?: (string | null)[];
 }
 
 const parser = unified().use(remarkParse).use(remarkGfm);
@@ -119,6 +122,7 @@ export function parseMarkdown(text: string): ParsedDocument {
   const fencedCodes: FencedCodeElement[] = [];
   const images: ImageElement[] = [];
   const listItems: ListItemElement[] = [];
+  const tables: TableElement[] = [];
 
   // Track list context for depth calculation
   let currentListDepth = -1;
@@ -166,6 +170,9 @@ export function parseMarkdown(text: string): ParsedDocument {
       case 'image':
         extractImage(node, text, images);
         break;
+      case 'table':
+        extractTable(node, text, tables);
+        return SKIP; // Don't visit children — extractTable walks them
     }
   });
 
@@ -204,6 +211,7 @@ export function parseMarkdown(text: string): ParsedDocument {
     images,
     listItems,
     metadata,
+    tables,
   };
 }
 
@@ -623,4 +631,119 @@ function extractListItem(
       end: { line: pos.end.line, column: pos.end.column, offset: pos.end.offset },
     },
   });
+}
+
+function extractTable(node: MdastNode, text: string, tables: TableElement[]): void {
+  if (!node.position || !node.children || node.children.length < 2) return;
+
+  const pos = node.position;
+  const align: TableAlignType[] = (node.align || []).map(a =>
+    a === 'left' || a === 'center' || a === 'right' ? a : null
+  );
+
+  const rows: import('./types').TableRowElement[] = [];
+  const headerRowNode = node.children[0];
+
+  // Process header row (first child)
+  if (headerRowNode?.position && headerRowNode.children) {
+    const headerCells = extractTableCells(headerRowNode, text);
+    rows.push({
+      cells: headerCells,
+      isHeader: true,
+      range: {
+        start: { line: headerRowNode.position.start.line, column: headerRowNode.position.start.column, offset: headerRowNode.position.start.offset },
+        end: { line: headerRowNode.position.end.line, column: headerRowNode.position.end.column, offset: headerRowNode.position.end.offset },
+      },
+    });
+  }
+
+  // Compute separator range: the line between header row end and second row start
+  const headerEndLine = headerRowNode?.position?.end.line ?? pos.start.line;
+  const separatorLine = headerEndLine + 1; // 1-indexed
+  const sepLineIdx = separatorLine - 1; // 0-indexed for text splitting
+  const lines = text.split('\n');
+  const sepLineText = sepLineIdx < lines.length ? lines[sepLineIdx] : '';
+  let sepLineOffset = 0;
+  for (let i = 0; i < sepLineIdx; i++) {
+    sepLineOffset += lines[i].length + 1;
+  }
+  const separatorRange: SourceRange = {
+    start: { line: separatorLine, column: 1, offset: sepLineOffset },
+    end: { line: separatorLine, column: sepLineText.length + 1, offset: sepLineOffset + sepLineText.length },
+  };
+
+  // Process body rows (children after the first — remark-gfm skips the separator row in AST)
+  for (let i = 1; i < node.children.length; i++) {
+    const rowNode = node.children[i];
+    if (!rowNode?.position || !rowNode.children) continue;
+
+    const bodyCells = extractTableCells(rowNode, text);
+    rows.push({
+      cells: bodyCells,
+      isHeader: false,
+      range: {
+        start: { line: rowNode.position.start.line, column: rowNode.position.start.column, offset: rowNode.position.start.offset },
+        end: { line: rowNode.position.end.line, column: rowNode.position.end.column, offset: rowNode.position.end.offset },
+      },
+    });
+  }
+
+  tables.push({
+    type: 'table',
+    range: {
+      start: { line: pos.start.line, column: pos.start.column, offset: pos.start.offset },
+      end: { line: pos.end.line, column: pos.end.column, offset: pos.end.offset },
+    },
+    rows,
+    separatorRange,
+    align,
+  });
+}
+
+function extractTableCells(rowNode: MdastNode, text: string): import('./types').TableCellElement[] {
+  const cells: import('./types').TableCellElement[] = [];
+  if (!rowNode.position || !rowNode.children) return cells;
+
+  const rowLine = rowNode.position.start.line;
+  const rowLineStart = rowNode.position.start.offset - (rowNode.position.start.column - 1);
+
+  for (const cellNode of rowNode.children) {
+    if (!cellNode.position) continue;
+
+    const cellPos = cellNode.position;
+
+    // Remark-gfm cell positions start at the leading `|` character
+    const pipeOffset = cellPos.start.offset;
+    if (text[pipeOffset] !== '|') continue;
+
+    const pipeCol = pipeOffset - rowLineStart + 1; // 1-indexed
+    const pipeRange: SourceRange = {
+      start: { line: rowLine, column: pipeCol, offset: pipeOffset },
+      end: { line: rowLine, column: pipeCol + 1, offset: pipeOffset + 1 },
+    };
+
+    // Content range from the cell's children (actual text/inline nodes)
+    let contentStart = cellPos.start;
+    let contentEnd = cellPos.end;
+    if (cellNode.children && cellNode.children.length > 0) {
+      const firstChild = cellNode.children[0];
+      const lastChild = cellNode.children[cellNode.children.length - 1];
+      if (firstChild.position) {
+        contentStart = firstChild.position.start;
+      }
+      if (lastChild.position) {
+        contentEnd = lastChild.position.end;
+      }
+    }
+
+    const content = text.slice(contentStart.offset, contentEnd.offset).trim();
+    const contentRange: SourceRange = {
+      start: { line: contentStart.line, column: contentStart.column, offset: contentStart.offset },
+      end: { line: contentEnd.line, column: contentEnd.column, offset: contentEnd.offset },
+    };
+
+    cells.push({ content, contentRange, pipeRange });
+  }
+
+  return cells;
 }

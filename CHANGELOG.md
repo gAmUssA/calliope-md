@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-02-17
+
+### Added
+
+- **[EXPERIMENTAL] Table Rendering** — Inline rendering of markdown tables with three-state visibility
+  - **Note**: Disabled by default — enable with `calliope.renderTables` setting
+  - Header cells rendered bold with subtle background
+  - Pipe delimiters dimmed (ghost state) when cursor is not on the row
+  - Separator row (`|---|---|---|`) nearly invisible when cursor is outside the table
+  - Column alignment indicators on header cells: ◁ (left), ◇ (center), ▷ (right)
+  - Per-row cursor granularity — only the active row shows raw markdown
+  - Tables with inline formatting (code, bold, links) fully supported
+
+### Fixed
+
+- **Decoration update stability** — Immediate cursor updates now cancel pending debounced updates, preventing competing decoration re-applications that caused visual flickering
+- **Table shimmer/blink fix** — Table decorations no longer use `syntaxHidden` (which collapses character widths via `letterSpacing: -1000px`). Pipes use ghost opacity and separator uses a dedicated low-opacity type, eliminating layout-shift-driven feedback loops
+
 ## [0.4.4] - 2026-02-12
 
 ### Changed

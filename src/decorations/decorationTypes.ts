@@ -53,6 +53,11 @@ export interface DecorationTypes {
 
   // Metadata/frontmatter
   metadataDim: vscode.TextEditorDecorationType;
+
+  // Tables
+  tableHeaderCell: vscode.TextEditorDecorationType;
+  tableBodyCell: vscode.TextEditorDecorationType;
+  tableSeparatorLine: vscode.TextEditorDecorationType;
 }
 
 export function createDecorationTypes(ghostOpacity: number): DecorationTypes {
@@ -194,6 +199,20 @@ export function createDecorationTypes(ghostOpacity: number): DecorationTypes {
     metadataDim: vscode.window.createTextEditorDecorationType({
       opacity: '0.6',
       isWholeLine: true,
+    }),
+
+    // Tables
+    tableHeaderCell: vscode.window.createTextEditorDecorationType({
+      fontWeight: 'bold',
+      backgroundColor: new vscode.ThemeColor('editorWidget.background'),
+    }),
+    tableBodyCell: vscode.window.createTextEditorDecorationType({
+      // Unstyled — exists for clearing when renderTables is disabled
+    }),
+    tableSeparatorLine: vscode.window.createTextEditorDecorationType({
+      // Very dim separator — avoids syntaxHidden's letterSpacing:-1000px
+      // which causes layout shifts and shimmer
+      opacity: '0.08',
     }),
   };
 }
