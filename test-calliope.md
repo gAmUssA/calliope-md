@@ -35,7 +35,7 @@ Here's a [link to Google](https://google.com) that should be clickable.
 
 Another [link to GitHub](https://github.com) for testing.
 
-Here's some `inline code` with background.
+Here's some `inline code` with **background**.
 
 More `code examples` to test.
 
@@ -177,31 +177,31 @@ Mixed nesting:
 
 Simple table:
 
-| Name | Age | City |
-|------|-----|------|
-| Alice | 30 | NYC |
-| Bob | 25 | LA |
-| Carol | 35 | Chicago |
+| Name  | Age | City    |
+|-------|-----|---------|
+| Alice | 30  | NYC     |
+| Bob   | 25  | LA      |
+| Carol | 35  | Chicago |
 
 Table with alignment:
 
 | Left | Center | Right |
 |:-----|:------:|------:|
-| L1 | C1 | R1 |
-| L2 | C2 | R2 |
+| L1   |   C1   |    R1 |
+| L2   |   C2   |    R2 |
 
 Table with inline formatting:
 
-| Scenario | Description |
-|----------|-------------|
-| `NORMAL_TRAFFIC` | 60% deposits, 40% withdrawals, amounts $10-$1000 |
-| `HIGH_VOLUME` | Fast generation, varied amounts |
+| Scenario             | Description                                       |
+|----------------------|---------------------------------------------------|
+| `NORMAL_TRAFFIC`     | 60% deposits, 40% withdrawals, amounts $10-$1000  |
+| `HIGH_VOLUME`        | Fast generation, varied amounts                   |
 | `INSUFFICIENT_FUNDS` | 20% deposits, 80% withdrawals (triggers failures) |
-| `FRAUD_DETECTION` | High-velocity patterns, large withdrawals |
+| `FRAUD_DETECTION`    | High-velocity patterns, large withdrawals         |
 
 Single-row table:
 
-| Header 1 | Header 2 |
-|----------|----------|
+| Header 1 | Header 2  |
+|----------|-----------|
 | Only row | Data here |
 

@@ -58,6 +58,11 @@ export interface DecorationTypes {
   tableHeaderCell: vscode.TextEditorDecorationType;
   tableBodyCell: vscode.TextEditorDecorationType;
   tableSeparatorLine: vscode.TextEditorDecorationType;
+  tableRowLine: vscode.TextEditorDecorationType;
+  tableHeaderBorder: vscode.TextEditorDecorationType;
+  tableLabel: vscode.TextEditorDecorationType;
+  tableLastRowBorder: vscode.TextEditorDecorationType;
+  tablePipeHidden: vscode.TextEditorDecorationType;
 }
 
 export function createDecorationTypes(ghostOpacity: number): DecorationTypes {
@@ -201,18 +206,38 @@ export function createDecorationTypes(ghostOpacity: number): DecorationTypes {
       isWholeLine: true,
     }),
 
-    // Tables
+    // Tables — Ulysses-style: pipes hidden, clean row borders, label badge
     tableHeaderCell: vscode.window.createTextEditorDecorationType({
       fontWeight: 'bold',
-      backgroundColor: new vscode.ThemeColor('editorWidget.background'),
     }),
     tableBodyCell: vscode.window.createTextEditorDecorationType({
-      // Unstyled — exists for clearing when renderTables is disabled
+      // Intentionally empty — body cells inherit normal styling
+      // so inline code, bold, etc. render naturally inside tables
     }),
     tableSeparatorLine: vscode.window.createTextEditorDecorationType({
-      // Very dim separator — avoids syntaxHidden's letterSpacing:-1000px
-      // which causes layout shifts and shimmer
-      opacity: '0.08',
+      // Kept for clearing; separator now uses syntaxHidden
+      opacity: '0',
+    }),
+    tableRowLine: vscode.window.createTextEditorDecorationType({
+      textDecoration: 'none; border-bottom: 1px solid var(--vscode-editorWidget-border);',
+      isWholeLine: true,
+    }),
+    tableHeaderBorder: vscode.window.createTextEditorDecorationType({
+      textDecoration: 'none; border-bottom: 2px solid var(--vscode-foreground);',
+      isWholeLine: true,
+    }),
+    tableLabel: vscode.window.createTextEditorDecorationType({
+      // Label line — subtle text, Ulysses style
+      isWholeLine: true,
+    }),
+    tableLastRowBorder: vscode.window.createTextEditorDecorationType({
+      // Thick bottom border on the last row — table bottom frame
+      textDecoration: 'none; border-bottom: 2px solid var(--vscode-foreground);',
+      isWholeLine: true,
+    }),
+    tablePipeHidden: vscode.window.createTextEditorDecorationType({
+      // Hide pipe characters — Ulysses uses horizontal-only grid lines
+      opacity: '0',
     }),
   };
 }

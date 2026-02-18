@@ -239,7 +239,8 @@ function updateDecorations(editor: vscode.TextEditor): void {
         editor
       );
       applyTableDecorations(editor, decorationTypes, tableDecos);
-      // Tables only use syntaxGhost (no syntaxHidden) to avoid layout shifts
+      // Tables use syntaxHidden for pipes/separator and syntaxGhost for dimmed hints
+      allSyntaxHidden.push(...tableDecos.syntaxHidden);
       allSyntaxGhost.push(...tableDecos.syntaxGhost);
     } catch {
       // Safety: never let table errors crash the decoration pipeline
@@ -333,6 +334,11 @@ function clearAllDecorations(editor: vscode.TextEditor): void {
   editor.setDecorations(decorationTypes.tableHeaderCell, emptyArray);
   editor.setDecorations(decorationTypes.tableBodyCell, emptyArray);
   editor.setDecorations(decorationTypes.tableSeparatorLine, emptyArray);
+  editor.setDecorations(decorationTypes.tableRowLine, emptyArray);
+  editor.setDecorations(decorationTypes.tableHeaderBorder, emptyArray);
+  editor.setDecorations(decorationTypes.tableLabel, emptyArray);
+  editor.setDecorations(decorationTypes.tableLastRowBorder, emptyArray);
+  editor.setDecorations(decorationTypes.tablePipeHidden, emptyArray);
 
   // Shared syntax decorations
   editor.setDecorations(decorationTypes.syntaxHidden, emptyArray);

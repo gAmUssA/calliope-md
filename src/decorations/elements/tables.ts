@@ -14,6 +14,12 @@ export interface TableDecorations {
   tableHeaderCell: vscode.DecorationOptions[];
   tableBodyCell: vscode.DecorationOptions[];
   tableSeparatorLine: vscode.DecorationOptions[];
+  tableRowLine: vscode.DecorationOptions[];
+  tableHeaderBorder: vscode.DecorationOptions[];
+  tableLabel: vscode.DecorationOptions[];
+  tableLastRowBorder: vscode.DecorationOptions[];
+  tablePipeHidden: vscode.DecorationOptions[];
+  syntaxHidden: vscode.DecorationOptions[];
   syntaxGhost: vscode.DecorationOptions[];
 }
 
@@ -25,6 +31,12 @@ export function createTableDecorations(
     tableHeaderCell: [],
     tableBodyCell: [],
     tableSeparatorLine: [],
+    tableRowLine: [],
+    tableHeaderBorder: [],
+    tableLabel: [],
+    tableLastRowBorder: [],
+    tablePipeHidden: [],
+    syntaxHidden: [],
     syntaxGhost: [],
   };
 
@@ -36,6 +48,39 @@ export function createTableDecorations(
     const cursorInTable = cursorPositions.some(
       c => c.line >= tableStartLine && c.line <= tableEndLine
     );
+
+    // Table label badge: "Table" on the left, "cols × rows" on the right
+    // Placed on the blank line above the table for clean separation
+    if (!cursorInTable) {
+      const numCols = table.align.length;
+      const numBodyRows = table.rows.filter(r => !r.isHeader).length;
+      const labelLine = tableStartLine > 0 ? tableStartLine - 1 : tableStartLine;
+      const labelRange = new vscode.Range(labelLine, 0, labelLine, 0);
+      // Compute table width in characters for spacing
+      const headerRow = table.rows.find(r => r.isHeader);
+      const tableLineText = headerRow 
+        ? editor.document.lineAt(headerRow.range.start.line - 1).text 
+        : '';
+      const tableWidth = tableLineText.length;
+      const leftText = 'Table';
+      const rightText = `${numCols} × ${numBodyRows + 1}`;
+      // Fill middle with spaces so dimensions appear right-aligned
+      const middleSpaces = Math.max(2, tableWidth - leftText.length - rightText.length);
+      const labelText = leftText + ' '.repeat(middleSpaces) + rightText;
+
+      result.tableLabel.push({
+        range: labelRange,
+        renderOptions: {
+          after: {
+            contentText: labelText,
+            color: new vscode.ThemeColor('editorLineNumber.foreground'),
+            fontStyle: 'italic',
+            fontWeight: 'normal',
+            fontSize: '0.85em',
+          },
+        },
+      });
+    }
 
     // Separator row
     const sepLine = table.separatorRange.start.line - 1;
@@ -49,13 +94,11 @@ export function createTableDecorations(
         table.separatorRange.end.column - 1
       );
       if (cursorInTable) {
+        // Dimmed hint when cursor is in the table but not on separator
         result.syntaxGhost.push({ range: sepRange });
       } else {
-        // Use dedicated tableSeparatorLine (very dim, ~8% opacity) instead of
-        // syntaxHidden. syntaxHidden's letterSpacing:-1000px collapses character
-        // widths, causing layout shifts that trigger visible-range events and
-        // create a decoration feedback loop (shimmer).
-        result.tableSeparatorLine.push({ range: sepRange });
+        // Completely hidden when cursor is outside the table
+        result.syntaxHidden.push({ range: sepRange });
       }
     }
 
@@ -63,6 +106,24 @@ export function createTableDecorations(
     for (const row of table.rows) {
       const rowLine = row.range.start.line - 1;
       const cursorOnRow = cursorPositions.some(c => c.line === rowLine);
+
+      // Whole-line bottom border for clean row separation
+      // Header gets a thicker border, last body row gets thick bottom frame, others get thin
+      if (!cursorOnRow) {
+        const lineRange = new vscode.Range(rowLine, 0, rowLine, 0);
+        if (row.isHeader) {
+          result.tableHeaderBorder.push({ range: lineRange });
+        } else {
+          // Check if this is the last data row in the table
+          const bodyRows = table.rows.filter(r => !r.isHeader);
+          const lastBodyRow = bodyRows[bodyRows.length - 1];
+          if (lastBodyRow && row.range.start.line === lastBodyRow.range.start.line) {
+            result.tableLastRowBorder.push({ range: lineRange });
+          } else {
+            result.tableRowLine.push({ range: lineRange });
+          }
+        }
+      }
 
       for (let cellIdx = 0; cellIdx < row.cells.length; cellIdx++) {
         const cell = row.cells[cellIdx];
@@ -109,13 +170,10 @@ export function createTableDecorations(
         );
 
         if (cursorOnRow) {
-          // raw: pipes fully visible
+          // raw: pipes fully visible for editing
         } else {
-          // Always use ghost (dimmed) for pipes — never collapse width.
-          // Using syntaxHidden would cause layout shifts (shimmer) because
-          // letterSpacing:-1000px collapses pipe width to zero, then going
-          // back to full width when the cursor enters the table.
-          result.syntaxGhost.push({ range: pipeRange });
+          // Hide pipes with opacity:0 — preserves character width for column alignment
+          result.tablePipeHidden.push({ range: pipeRange });
         }
       }
 
@@ -128,10 +186,10 @@ export function createTableDecorations(
           const trailingRange = new vscode.Range(rowLine, pipeCol, rowLine, pipeCol + 1);
 
           if (cursorOnRow) {
-            // raw
+            // raw: visible for editing
           } else {
-            // Same as leading pipes: always ghost, never collapse width
-            result.syntaxGhost.push({ range: trailingRange });
+            // Hide trailing pipe with opacity:0
+            result.tablePipeHidden.push({ range: trailingRange });
           }
         }
       }
@@ -149,6 +207,11 @@ export function applyTableDecorations(
   editor.setDecorations(types.tableHeaderCell, decorations.tableHeaderCell);
   editor.setDecorations(types.tableBodyCell, decorations.tableBodyCell);
   editor.setDecorations(types.tableSeparatorLine, decorations.tableSeparatorLine);
+  editor.setDecorations(types.tableRowLine, decorations.tableRowLine);
+  editor.setDecorations(types.tableHeaderBorder, decorations.tableHeaderBorder);
+  editor.setDecorations(types.tableLabel, decorations.tableLabel);
+  editor.setDecorations(types.tableLastRowBorder, decorations.tableLastRowBorder);
+  editor.setDecorations(types.tablePipeHidden, decorations.tablePipeHidden);
 }
 
 export function clearTableDecorations(
@@ -158,4 +221,9 @@ export function clearTableDecorations(
   editor.setDecorations(types.tableHeaderCell, []);
   editor.setDecorations(types.tableBodyCell, []);
   editor.setDecorations(types.tableSeparatorLine, []);
+  editor.setDecorations(types.tableRowLine, []);
+  editor.setDecorations(types.tableHeaderBorder, []);
+  editor.setDecorations(types.tableLabel, []);
+  editor.setDecorations(types.tableLastRowBorder, []);
+  editor.setDecorations(types.tablePipeHidden, []);
 }

@@ -172,7 +172,7 @@ export function parseMarkdown(text: string): ParsedDocument {
         break;
       case 'table':
         extractTable(node, text, tables);
-        return SKIP; // Don't visit children — extractTable walks them
+        break; // Continue visiting children for inline formatting (bold, code, etc.)
     }
   });
 

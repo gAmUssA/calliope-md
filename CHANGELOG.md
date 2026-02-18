@@ -7,23 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.1] - 2026-02-17
+## [0.5.2] - 2026-02-17
 
 ### Added
 
-- **[EXPERIMENTAL] Table Rendering** — Inline rendering of markdown tables with three-state visibility
+- **[EXPERIMENTAL] Ulysses-Style Table Rendering** — Clean, distraction-free table display
   - **Note**: Disabled by default — enable with `calliope.renderTables` setting
-  - Header cells rendered bold with subtle background
-  - Pipe delimiters dimmed (ghost state) when cursor is not on the row
-  - Separator row (`|---|---|---|`) nearly invisible when cursor is outside the table
-  - Column alignment indicators on header cells: ◁ (left), ◇ (center), ▷ (right)
+  - Pipe delimiters hidden (opacity: 0) preserving column alignment in the monospace grid
+  - Horizontal row borders via CSS injection — 1px for body rows, 2px for header and table frame
+  - Header cells rendered bold (no background, compatible with inline formatting)
+  - Separator row fully hidden when cursor is outside the table
+  - Spread table label: "Table" left-aligned and "N × M" dimensions right-aligned above each table
   - Per-row cursor granularity — only the active row shows raw markdown
-  - Tables with inline formatting (code, bold, links) fully supported
+  - Inline formatting (code, bold, italic, strikethrough, links) renders naturally inside table cells
+- **Table Auto-Format** — Automatic column width alignment
+  - `Calliope: Format Tables` command to format all tables in the active document
+  - Auto-format on save when `calliope.renderTables` is enabled
+  - Preserves column alignment markers (`:---`, `:---:`, `---:`)
 
 ### Fixed
 
+- **Inline formatting in table cells** — Parser now visits child nodes of table elements (bold, italic, code, links) instead of skipping them
 - **Decoration update stability** — Immediate cursor updates now cancel pending debounced updates, preventing competing decoration re-applications that caused visual flickering
-- **Table shimmer/blink fix** — Table decorations no longer use `syntaxHidden` (which collapses character widths via `letterSpacing: -1000px`). Pipes use ghost opacity and separator uses a dedicated low-opacity type, eliminating layout-shift-driven feedback loops
+- **Table shimmer/blink fix** — Table decorations use opacity: 0 for pipes and `syntaxHidden`/`syntaxGhost` for separator, eliminating layout-shift-driven feedback loops
 
 ## [0.4.4] - 2026-02-12
 

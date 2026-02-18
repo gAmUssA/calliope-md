@@ -17,6 +17,8 @@ import { ImageHoverProvider } from './decorations/elements/images';
 import { clearCache } from './parser/parseCache';
 import { initializePresentationMode, disposePresentationMode, togglePresentationMode } from './presentationMode';
 import { cleanupUnusedSvgFiles, clearMermaidCaches, MermaidHoverProvider } from './decorations/elements/mermaidDiagrams';
+import { formatTablesCommand, formatTablesInDocument, triggerAutoFormatTables, disposeAutoFormat } from './formatters/tableFormatter';
+import { getConfig } from './config';
 
 // Re-export for testing
 export { initializePresentationMode, togglePresentationMode } from './presentationMode';
@@ -176,11 +178,33 @@ export function activate(context: vscode.ExtensionContext): void {
       await togglePresentationMode();
     })
   );
+
+  // Register format tables command
+  context.subscriptions.push(
+    vscode.commands.registerCommand('calliope.formatTables', async () => {
+      await formatTablesCommand();
+    })
+  );
+
+  // Auto-format tables on save when renderTables is enabled
+  context.subscriptions.push(
+    vscode.workspace.onWillSaveTextDocument((event) => {
+      if (event.document.languageId === 'markdown') {
+        const config = getConfig();
+        if (config.renderTables) {
+          event.waitUntil(
+            Promise.resolve(formatTablesInDocument(event.document))
+          );
+        }
+      }
+    })
+  );
 }
 
 export function deactivate(): void {
   disposeDecorations();
   disposePresentationMode();
+  disposeAutoFormat();
   clearCache();
   cleanupUnusedSvgFiles();
 }
