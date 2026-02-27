@@ -221,27 +221,62 @@ function extractHeader(node: MdastNode, text: string, headers: HeaderElement[]):
   const pos = node.position;
   const level = node.depth as 1 | 2 | 3 | 4 | 5 | 6;
 
-  // Find the # markers - they are at the start of the line
+  // Detect ATX vs setext by checking if the line starts with #
   const lineStart = pos.start.offset - (pos.start.column - 1);
-  const hashCount = level;
-  const syntaxEnd = lineStart + hashCount + 1; // +1 for the space after #
+  const isAtx = text[lineStart] === '#';
 
-  headers.push({
-    type: 'header',
-    level,
-    range: {
-      start: { line: pos.start.line, column: pos.start.column, offset: pos.start.offset },
-      end: { line: pos.end.line, column: pos.end.column, offset: pos.end.offset },
-    },
-    syntaxRange: {
-      start: { line: pos.start.line, column: 1, offset: lineStart },
-      end: { line: pos.start.line, column: hashCount + 2, offset: syntaxEnd },
-    },
-    contentRange: {
-      start: { line: pos.start.line, column: hashCount + 2, offset: syntaxEnd },
-      end: { line: pos.end.line, column: pos.end.column, offset: pos.end.offset },
-    },
-  });
+  if (isAtx) {
+    // ATX heading: # markers at the start of the line
+    const hashCount = level;
+    const syntaxEnd = lineStart + hashCount + 1; // +1 for the space after #
+
+    headers.push({
+      type: 'header',
+      level,
+      style: 'atx',
+      range: {
+        start: { line: pos.start.line, column: pos.start.column, offset: pos.start.offset },
+        end: { line: pos.end.line, column: pos.end.column, offset: pos.end.offset },
+      },
+      syntaxRange: {
+        start: { line: pos.start.line, column: 1, offset: lineStart },
+        end: { line: pos.start.line, column: hashCount + 2, offset: syntaxEnd },
+      },
+      contentRange: {
+        start: { line: pos.start.line, column: hashCount + 2, offset: syntaxEnd },
+        end: { line: pos.end.line, column: pos.end.column, offset: pos.end.offset },
+      },
+    });
+  } else {
+    // Setext heading: content on first line, underline (=== or ---) on second line
+    // Content range = first line (the heading text)
+    // Syntax range = last line (the underline)
+    const nodeText = text.slice(pos.start.offset, pos.end.offset);
+    const newlineIndex = nodeText.indexOf('\n');
+    if (newlineIndex === -1) return; // Shouldn't happen for setext, but guard
+
+    const contentEndOffset = pos.start.offset + newlineIndex;
+    const underlineStartOffset = contentEndOffset + 1; // After the newline
+    const underlineLine = pos.end.line; // Underline is on the last line
+
+    headers.push({
+      type: 'header',
+      level,
+      style: 'setext',
+      range: {
+        start: { line: pos.start.line, column: pos.start.column, offset: pos.start.offset },
+        end: { line: pos.end.line, column: pos.end.column, offset: pos.end.offset },
+      },
+      syntaxRange: {
+        start: { line: underlineLine, column: 1, offset: underlineStartOffset },
+        end: { line: pos.end.line, column: pos.end.column, offset: pos.end.offset },
+      },
+      contentRange: {
+        start: { line: pos.start.line, column: 1, offset: lineStart },
+        end: { line: pos.start.line, column: newlineIndex + 1, offset: contentEndOffset },
+      },
+    });
+  }
 }
 
 function extractEmphasis(

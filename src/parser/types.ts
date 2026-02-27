@@ -19,7 +19,8 @@ export interface ParsedElement {
 export interface HeaderElement extends ParsedElement {
   type: 'header';
   level: 1 | 2 | 3 | 4 | 5 | 6;
-  syntaxRange: SourceRange;  // The # markers
+  style: 'atx' | 'setext';
+  syntaxRange: SourceRange;  // ATX: the # markers; Setext: the underline (=== or ---)
   contentRange: SourceRange; // The header text
 }
 

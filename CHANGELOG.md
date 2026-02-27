@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.3] - 2026-02-26
+
+### Fixed
+
+- **Setext Heading Rendering** — Fixed broken rendering of [setext-style headings](https://spec.commonmark.org/0.30/#setext-headings) (`===` for H1, `---` for H2)
+  - Parser now correctly detects setext vs ATX heading style from source text
+  - `syntaxRange` covers the underline (`===`/`---`) instead of incorrectly computing `#` marker positions
+  - `contentRange` correctly covers the heading text on the line above the underline
+  - Underline follows the same three-state visibility model as ATX `#` markers (hidden/ghost/raw)
+  - Added `style` field (`'atx'` | `'setext'`) to `HeaderElement` type for heading style identification
+
 ## [0.5.2] - 2026-02-17
 
 ### Added

@@ -38,8 +38,8 @@ The system SHALL use the `lineHeight` decoration property to ensure headers have
 - **WHEN** a header with larger font size is rendered
 - **THEN** the line height SHALL be set proportionally (e.g., 42px for H1) to prevent text overlap
 
-### Requirement: Hide hash markers per visibility model
-The system SHALL hide the `#` markers according to the three-state visibility model.
+### Requirement: Hide syntax markers per visibility model
+The system SHALL hide heading syntax markers according to the three-state visibility model, for both ATX (`#`) and setext (`===`/`---`) heading styles.
 
 #### Scenario: Hash markers hidden in rendered state
 - **WHEN** cursor is not on the header line
@@ -52,6 +52,26 @@ The system SHALL hide the `#` markers according to the three-state visibility mo
 #### Scenario: Hash markers visible when cursor in markers
 - **WHEN** cursor is positioned within the `#` characters
 - **THEN** the `#` characters SHALL appear at full opacity
+
+#### Scenario: Setext underline hidden in rendered state
+- **WHEN** cursor is not on the heading lines (content line or underline)
+- **THEN** the setext underline (`===` or `---`) SHALL be hidden
+
+#### Scenario: Setext underline ghosted when cursor on heading
+- **WHEN** cursor is on the heading content line or underline but not within the underline characters
+- **THEN** the setext underline SHALL appear at ghost opacity (30%)
+
+#### Scenario: Setext underline visible when cursor in underline
+- **WHEN** cursor is positioned within the setext underline characters
+- **THEN** the underline SHALL appear at full opacity
+
+#### Scenario: Setext heading content styled correctly
+- **WHEN** a setext H1 heading is present (text followed by `===`)
+- **THEN** the text line SHALL render at 1.5em bold (same as ATX H1)
+
+#### Scenario: Setext H2 styled correctly
+- **WHEN** a setext H2 heading is present (text followed by `---`)
+- **THEN** the text line SHALL render at 1.35em bold (same as ATX H2)
 
 ### Requirement: Configurable header rendering
 The system SHALL allow users to enable/disable header rendering via the `calliope.renderHeaders` setting.
