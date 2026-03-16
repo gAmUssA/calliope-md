@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-03-16
+
+### Changed
+
+- **Image syntax always visible** — `![alt](path)` syntax now stays visible alongside the inline preview instead of being hidden/ghosted based on cursor position
+
+### Fixed
+
+- **Setext heading regression** — Restored setext heading support (`===`/`---` underline style) that was accidentally removed by uncommitted changes
+
 ## [0.6.0] - 2026-03-16
 
 ### Changed

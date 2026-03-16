@@ -2,8 +2,6 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import type { ImageElement } from '../../parser/types';
 import type { DecorationTypes } from '../decorationTypes';
-import { getVisibilityState, getCursorPositions } from '../visibilityState';
-
 export interface ImageDecorations {
   imagePreview: vscode.DecorationOptions[];
   syntaxHidden: vscode.DecorationOptions[];
@@ -20,12 +18,9 @@ export function createImageDecorations(
     syntaxGhost: [],
   };
 
-  const cursorPositions = getCursorPositions(editor);
   const documentUri = editor.document.uri;
 
   for (const image of images) {
-    const visibility = getVisibilityState(cursorPositions, image.range);
-
     const syntaxRange = new vscode.Range(
       image.syntaxRange.start.line - 1,
       image.syntaxRange.start.column - 1,
@@ -36,8 +31,8 @@ export function createImageDecorations(
     // Resolve image path
     const imageUri = resolveImagePath(image.url, documentUri);
 
-    // Create preview decoration with image
-    if (imageUri && visibility !== 'raw') {
+    // Create preview decoration with image — syntax always stays visible
+    if (imageUri) {
       const previewDecoration: vscode.DecorationOptions = {
         range: syntaxRange,
         renderOptions: {
@@ -51,14 +46,6 @@ export function createImageDecorations(
       };
       result.imagePreview.push(previewDecoration);
     }
-
-    // Hide/ghost syntax based on cursor position
-    if (visibility === 'rendered') {
-      result.syntaxHidden.push({ range: syntaxRange });
-    } else if (visibility === 'ghost') {
-      result.syntaxGhost.push({ range: syntaxRange });
-    }
-    // 'raw' state: show full syntax
   }
 
   return result;
