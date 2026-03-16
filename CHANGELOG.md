@@ -7,16 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.3] - 2026-02-26
+## [0.6.0] - 2026-03-16
+
+### Changed
+
+- **BREAKING: Presentation Mode no longer overrides theme colors** — `workbench.colorCustomizations` is no longer modified by Presentation Mode. Theme switching now works normally while presenting. Users who relied on the pure black/white background can configure their preferred presentation theme independently.
+- **Presentation Mode startup notification** — When VS Code starts with Presentation Mode still active, a notification appears with "Deactivate" and "Keep Current" options (the previous silent restore behavior is removed)
+- **Interactive orphaned state recovery** — Instead of silently restoring settings from a previous session, Presentation Mode now asks the user what to do
+- **Window title indicator** — `[PRESENTING]` is prepended to the window title when Presentation Mode is active, visible even with status bar hidden
 
 ### Fixed
 
-- **Setext Heading Rendering** — Fixed broken rendering of [setext-style headings](https://spec.commonmark.org/0.30/#setext-headings) (`===` for H1, `---` for H2)
-  - Parser now correctly detects setext vs ATX heading style from source text
-  - `syntaxRange` covers the underline (`===`/`---`) instead of incorrectly computing `#` marker positions
-  - `contentRange` correctly covers the heading text on the line above the underline
-  - Underline follows the same three-state visibility model as ATX `#` markers (hidden/ghost/raw)
-  - Added `style` field (`'atx'` | `'setext'`) to `HeaderElement` type for heading style identification
+- **Deprecated `workbench.activityBar.visible` setting** — Replaced with `workbench.activityBar.location: 'hidden'` to fix "not a registered configuration" error on modern VS Code
+- **Legacy color override cleanup** — On startup, automatically removes orphaned `workbench.colorCustomizations` entries left by older versions of the extension
 
 ## [0.5.2] - 2026-02-17
 
