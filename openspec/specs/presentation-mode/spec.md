@@ -12,11 +12,15 @@ The system SHALL provide a command `Calliope: Toggle Presentation Mode` that act
 - **THEN** presentation mode deactivates and restores all original settings
 
 ### Requirement: Store original settings before activation
-The system SHALL store the current values of all affected settings before applying presentation mode settings.
+The system SHALL store the current values of all affected settings before applying presentation mode settings. Color customization settings SHALL NOT be captured or stored.
 
 #### Scenario: Settings captured on activation
 - **WHEN** presentation mode activates
-- **THEN** current values of all affected settings are stored for later restoration
+- **THEN** current values of all affected editor/workbench chrome settings are stored for later restoration
+
+#### Scenario: Color customizations not captured
+- **WHEN** presentation mode activates
+- **THEN** `workbench.colorCustomizations` is NOT included in captured original settings
 
 #### Scenario: Settings persist across restart
 - **WHEN** VS Code restarts while presentation mode is active
@@ -25,7 +29,7 @@ The system SHALL store the current values of all affected settings before applyi
 ### Requirement: Apply presentation settings on activation
 The system SHALL apply the following settings when presentation mode activates:
 - Close sidebar
-- Hide activity bar
+- Hide activity bar via `workbench.activityBar.location` set to `'hidden'`
 - Set editor font size to 18
 - Disable minimap
 - Hide vertical scrollbar
@@ -37,6 +41,14 @@ The system SHALL apply the following settings when presentation mode activates:
 #### Scenario: All presentation settings applied
 - **WHEN** presentation mode activates
 - **THEN** all presentation settings are applied simultaneously
+
+#### Scenario: Activity bar hidden using location setting
+- **WHEN** presentation mode activates
+- **THEN** `workbench.activityBar.location` is set to `'hidden'` in user settings
+
+#### Scenario: Activity bar location restored on deactivation
+- **WHEN** presentation mode deactivates
+- **THEN** `workbench.activityBar.location` is restored to its original value
 
 ### Requirement: Restore original settings on deactivation
 The system SHALL restore all settings to their original values when presentation mode deactivates.
@@ -50,19 +62,19 @@ The system SHALL restore all settings to their original values when presentation
 - **THEN** system continues restoring remaining settings and reports the error
 
 ### Requirement: Theme-aware background colors
-The system SHALL apply theme-appropriate background colors when presentation mode is active.
+The system SHALL NOT override `workbench.colorCustomizations` when Presentation Mode is active. Theme colors SHALL be left entirely to the user's chosen VS Code theme.
 
-#### Scenario: Dark theme background
-- **WHEN** presentation mode activates with a dark theme active
-- **THEN** background colors are set to pure black (#000000)
-
-#### Scenario: Light theme background
-- **WHEN** presentation mode activates with a light theme active
-- **THEN** background colors are set to pure white (#ffffff)
+#### Scenario: Activation does not modify color customizations
+- **WHEN** Presentation Mode activates
+- **THEN** `workbench.colorCustomizations` in settings.json is NOT modified
 
 #### Scenario: Theme change during presentation
-- **WHEN** user changes theme while presentation mode is active
-- **THEN** background colors update to match the new theme kind
+- **WHEN** user changes theme while Presentation Mode is active
+- **THEN** theme colors apply normally without any override from the extension
+
+#### Scenario: Deactivation does not touch color customizations
+- **WHEN** Presentation Mode deactivates
+- **THEN** `workbench.colorCustomizations` is NOT modified by the extension
 
 ### Requirement: Visual status indicator
 The system SHALL display a status bar item indicating when presentation mode is active.
@@ -80,12 +92,12 @@ The system SHALL display a status bar item indicating when presentation mode is 
 - **THEN** presentation mode toggles (activates if inactive, deactivates if active)
 
 ### Requirement: Restore on extension activation
-The system SHALL check for orphaned presentation mode state on extension activation and offer restoration.
+The system SHALL check for orphaned presentation mode state on extension activation and offer interactive restoration instead of silently restoring.
 
 #### Scenario: Clean startup
 - **WHEN** extension activates with no stored presentation state
 - **THEN** no restoration action is taken
 
 #### Scenario: Orphaned active state detected
-- **WHEN** extension activates with stored "active" presentation state but settings don't match
-- **THEN** system restores original settings and clears the stored state
+- **WHEN** extension activates with stored "active" presentation state
+- **THEN** system shows interactive notification with options to restore or keep current settings

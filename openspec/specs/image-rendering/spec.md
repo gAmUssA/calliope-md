@@ -34,15 +34,15 @@ The system SHALL display a placeholder icon when an image cannot be loaded.
 - **THEN** a placeholder icon SHALL be displayed
 
 ### Requirement: Hide image syntax in rendered state
-The system SHALL hide the `![alt](path)` syntax when not editing.
+The system SHALL keep the `![alt](path)` syntax fully visible at all times when image rendering is enabled. The image preview SHALL appear as an inline decoration after the syntax text.
 
-#### Scenario: Syntax hidden when cursor elsewhere
-- **WHEN** the cursor is not on the image line
-- **THEN** only the image preview SHALL be visible
+#### Scenario: Syntax visible when cursor elsewhere
+- **WHEN** image rendering is enabled and the cursor is not on the image line
+- **THEN** the full `![alt](path)` syntax SHALL remain visible alongside the image preview
 
 #### Scenario: Syntax visible when editing
-- **WHEN** the cursor is on the image line
-- **THEN** the full `![alt](path)` syntax SHALL be visible
+- **WHEN** image rendering is enabled and the cursor is on the image line
+- **THEN** the full `![alt](path)` syntax SHALL remain visible alongside the image preview
 
 ### Requirement: Show full image on hover
 The system SHALL display the full-size image in a hover tooltip.
@@ -52,8 +52,16 @@ The system SHALL display the full-size image in a hover tooltip.
 - **THEN** the full-size image SHALL be displayed in a tooltip
 
 ### Requirement: Configurable image rendering
-The system SHALL allow users to enable/disable image rendering via the `calliope.renderImages` setting.
+The system SHALL allow users to enable/disable image rendering via the `calliope.renderImages` setting. The setting SHALL default to `false` (disabled).
 
-#### Scenario: Images disabled
-- **WHEN** `calliope.renderImages` is set to false
-- **THEN** images SHALL render as plain text syntax
+#### Scenario: Images disabled by default
+- **WHEN** the user has not explicitly set `calliope.renderImages`
+- **THEN** images SHALL render as plain text syntax with no inline preview
+
+#### Scenario: Images enabled explicitly
+- **WHEN** `calliope.renderImages` is set to `true`
+- **THEN** inline image previews SHALL be displayed
+
+#### Scenario: Images disabled explicitly
+- **WHEN** `calliope.renderImages` is set to `false`
+- **THEN** images SHALL render as plain text syntax with no inline preview
