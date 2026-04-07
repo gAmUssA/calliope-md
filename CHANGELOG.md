@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-04-07
+
+### Added
+
+- **One Sentence Per Line (OSPL) Formatting** — New command to reformat markdown prose with one sentence per line
+  - `Calliope: One Sentence Per Line` command (Command Palette)
+  - Improves git diffs, makes sentences easier to reorder, and reveals prose structure
+  - Uses remark AST for structurally correct paragraph identification
+  - **Smart sentence splitting** with protection for abbreviations (Mr., Dr., e.g., i.e., U.S., etc.), decimal numbers, ellipsis, and file extensions
+  - **List item support** — continuation lines indented to match content column
+  - **Blockquote support** — continuation lines prefixed with `>` markers
+  - **Nested structure support** — correctly handles lists inside blockquotes and vice versa
+  - **Inline markup preservation** — bold, italic, links, and inline code treated as atomic (never split inside them)
+  - Skips headings, code blocks, tables, frontmatter, and horizontal rules
+  - Single undo step reverts the entire formatting operation
+
 ## [0.6.1] - 2026-03-16
 
 ### Changed

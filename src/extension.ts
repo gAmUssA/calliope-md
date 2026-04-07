@@ -18,6 +18,7 @@ import { clearCache } from './parser/parseCache';
 import { initializePresentationMode, disposePresentationMode, togglePresentationMode } from './presentationMode';
 import { cleanupUnusedSvgFiles, clearMermaidCaches, MermaidHoverProvider } from './decorations/elements/mermaidDiagrams';
 import { formatTablesCommand, formatTablesInDocument, triggerAutoFormatTables, disposeAutoFormat } from './formatters/tableFormatter';
+import { formatOsplCommand } from './formatters/osplFormatter';
 import { getConfig } from './config';
 
 // Re-export for testing
@@ -183,6 +184,13 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.commands.registerCommand('calliope.formatTables', async () => {
       await formatTablesCommand();
+    })
+  );
+
+  // Register OSPL (One Sentence Per Line) command
+  context.subscriptions.push(
+    vscode.commands.registerCommand('calliope.formatOSPL', async () => {
+      await formatOsplCommand();
     })
   );
 
