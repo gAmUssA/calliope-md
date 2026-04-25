@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-04-25
+
+### Fixed
+
+- **Scroll-stop flicker eliminated** — Decorations no longer rebuild on every scroll event. The decoration manager now tracks the buffered range it last rendered and skips updates when the viewport is still inside it, preventing the brief flicker that appeared when scrolling stopped (`src/decorations/decorationManager.ts`, `src/extension.ts`)
+- **Larger viewport buffer** — Pre-decorated buffer increased from 50 to 200 lines so most scroll gestures stay inside the already-rendered region, removing raw-markdown pop-in for medium-distance scrolls
+
 ## [0.7.0] - 2026-04-07
 
 ### Added

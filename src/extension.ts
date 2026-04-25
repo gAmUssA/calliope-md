@@ -3,6 +3,7 @@ import {
   initializeDecorations,
   disposeDecorations,
   triggerUpdateDecorations,
+  triggerUpdateDecorationsIfViewportChanged,
   updateDecorationsImmediate,
   toggleEnabled,
   setEnabled,
@@ -73,11 +74,12 @@ export function activate(context: vscode.ExtensionContext): void {
     })
   );
 
-  // Scroll - update viewport decorations
+  // Scroll - update viewport decorations only when scrolling outside the
+  // already-rendered buffered range (prevents flicker on scroll-stop).
   context.subscriptions.push(
     vscode.window.onDidChangeTextEditorVisibleRanges((event) => {
       if (event.textEditor.document.languageId === 'markdown') {
-        triggerUpdateDecorations(event.textEditor);
+        triggerUpdateDecorationsIfViewportChanged(event.textEditor);
       }
     })
   );

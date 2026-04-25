@@ -22,6 +22,8 @@ import { createTableDecorations, applyTableDecorations, clearTableDecorations } 
 let decorationTypes: DecorationTypes | undefined;
 let updateTimeout: NodeJS.Timeout | undefined;
 let isEnabled = true;
+let lastBufferedRange: vscode.Range | undefined;
+let lastBufferedDocUri: string | undefined;
 
 export function initializeDecorations(): DecorationTypes {
   const config = getConfig();
@@ -43,6 +45,8 @@ export function disposeDecorations(): void {
     clearTimeout(updateTimeout);
     updateTimeout = undefined;
   }
+  lastBufferedRange = undefined;
+  lastBufferedDocUri = undefined;
 }
 
 export function toggleEnabled(): boolean {
@@ -69,6 +73,37 @@ export function triggerUpdateDecorations(editor: vscode.TextEditor): void {
 }
 
 /**
+ * Triggers a decoration update only if the editor's visible range has moved
+ * outside the previously rendered buffered range. Used for scroll events to
+ * avoid flicker from rebuilding decorations that are already in place.
+ */
+export function triggerUpdateDecorationsIfViewportChanged(editor: vscode.TextEditor): void {
+  if (editor.visibleRanges.length === 0) {
+    triggerUpdateDecorations(editor);
+    return;
+  }
+
+  if (lastBufferedDocUri !== editor.document.uri.toString()) {
+    triggerUpdateDecorations(editor);
+    return;
+  }
+
+  if (lastBufferedRange) {
+    const visible = editor.visibleRanges[0];
+    const margin = 10;
+    const viewportInsideBuffer =
+      visible.start.line >= lastBufferedRange.start.line + margin &&
+      visible.end.line <= lastBufferedRange.end.line - margin;
+
+    if (viewportInsideBuffer) {
+      return;
+    }
+  }
+
+  triggerUpdateDecorations(editor);
+}
+
+/**
  * Updates decorations immediately (for cursor movement).
  * Also cancels any pending debounced update to prevent double-application.
  */
@@ -90,6 +125,8 @@ function updateDecorations(editor: vscode.TextEditor): void {
 
   if (!isEnabled || editor.document.languageId !== 'markdown') {
     clearAllDecorations(editor);
+    lastBufferedRange = undefined;
+    lastBufferedDocUri = undefined;
     return;
   }
 
@@ -264,6 +301,10 @@ function updateDecorations(editor: vscode.TextEditor): void {
   // Apply combined syntax decorations
   editor.setDecorations(decorationTypes.syntaxHidden, allSyntaxHidden);
   editor.setDecorations(decorationTypes.syntaxGhost, allSyntaxGhost);
+
+  // Record what we just decorated so scroll events can skip redundant rebuilds.
+  lastBufferedRange = visibleRange;
+  lastBufferedDocUri = editor.document.uri.toString();
 }
 
 /**
@@ -275,7 +316,7 @@ function getVisibleRangeWithBuffer(editor: vscode.TextEditor): vscode.Range {
   }
 
   const visible = editor.visibleRanges[0];
-  const buffer = 50;
+  const buffer = 200;
 
   return new vscode.Range(
     Math.max(0, visible.start.line - buffer),
