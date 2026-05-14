@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.2] - 2026-05-14
+
+### Fixed
+
+- **Mermaid feedback loop eliminated** — Documents containing mermaid diagrams no longer flicker continuously at ~150ms intervals. The mermaid renderer was firing `calliope.internal.updateDecorations` on every render call — including cache hits — which scheduled another decoration pass, which fired another mermaid render, ad infinitum. The post-render update command is now only dispatched on real cache misses, where there is actual async work to wait for (`src/decorations/elements/mermaidDiagrams.ts`)
+
 ## [0.7.1] - 2026-04-25
 
 ### Fixed

@@ -238,24 +238,30 @@ export function createMermaidDiagramDecorations(
     
     // Mark this diagram as active
     activeDiagramHashes.add(hash);
-    
-    // Start async rendering (non-blocking)
-    renderMermaidWithCache(code, hash).then(({ dataUri, ascii, error }) => {
-      // Trigger decoration update when rendering completes
-      // This will be handled by the decoration manager's update cycle
-      if (dataUri || ascii || error) {
-        // Force a decoration update by triggering a fake change
-        // The decoration manager will pick up the cached result
-        vscode.commands.executeCommand('calliope.internal.updateDecorations');
-      }
-    }).catch(err => {
-      console.error('Unexpected error in mermaid rendering:', err);
-    });
-    
-    // Check if we have cached results
+
+    // Check if we have cached results BEFORE kicking off render. If the result
+    // is already cached, the synchronous reads below will apply it in this
+    // same update cycle — we must NOT re-trigger another updateDecorations
+    // from the async .then(), because that creates a feedback loop:
+    //   updateDecorations -> renderMermaidWithCache (cache hit, async resolve)
+    //     -> .then fires -> executeCommand('calliope.internal.updateDecorations')
+    //     -> triggerUpdateDecorations (150ms) -> updateDecorations -> ...
+    // Only attach the re-trigger when this is a real cache miss (first render).
     const cachedDataUri = svgCache.get(hash);
     const cachedAscii = asciiCache.get(hash);
     const cachedError = errorCache.get(hash);
+    const isCacheMiss = !cachedDataUri && !cachedAscii && !cachedError;
+
+    if (isCacheMiss) {
+      // Cache miss — async render in progress, fire one update when it lands.
+      renderMermaidWithCache(code, hash).then(({ dataUri, ascii, error }) => {
+        if (dataUri || ascii || error) {
+          vscode.commands.executeCommand('calliope.internal.updateDecorations');
+        }
+      }).catch(err => {
+        console.error('Unexpected error in mermaid rendering:', err);
+      });
+    }
     
     // Create ranges for fences and content
     const openFenceRange = new vscode.Range(
