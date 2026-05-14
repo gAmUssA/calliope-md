@@ -20,6 +20,7 @@ showcase.md
 1.flink.sql
 Makefile
 images/icon.svg
+images/demo.gif
 *.vsix
 *.vsix.zip
 .github/**

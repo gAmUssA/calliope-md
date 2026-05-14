@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.2] - 2026-05-14
+
+### Changed
+
+- **Demo GIF served externally** — Reduced `.vsix` size from 7.3 MB back down to ~205 KB by excluding the 7.2 MB `images/demo.gif` from the package and referencing it via an absolute `raw.githubusercontent.com` URL in `README.md`. The marketplace listing still renders the GIF; users no longer pay the 7 MB download on install. The GIF remains tracked in git for the GitHub README
+
 ## [0.8.1] - 2026-05-14
 
 ### Added

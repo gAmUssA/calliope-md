@@ -10,7 +10,7 @@
 
 Calliope brings Ulysses-style hybrid WYSIWYG editing to VS Code. Write in Markdown, see it rendered inline — syntax markers hide until you need them.
 
-![Calliope Demo](images/demo.gif)
+![Calliope Demo](https://raw.githubusercontent.com/gAmUssA/calliope-md/main/images/demo.gif)
 
 ## Features
 
