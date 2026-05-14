@@ -16,6 +16,7 @@ docs/**
 test-calliope.md
 test-*.md
 debug-*.js
+showcase.md
 1.flink.sql
 Makefile
 images/icon.svg
