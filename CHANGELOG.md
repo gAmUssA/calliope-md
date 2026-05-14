@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-05-14
+
+### Added
+
+- **Demo GIF in README** — `images/demo.gif` now showcases inline rendering and the new copy-code button on the GitHub README and the VS Code Marketplace listing page
+
 ## [0.8.0] - 2026-05-14
 
 ### Added
