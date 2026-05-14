@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-05-14
+
+### Added
+
+- **Copy-code hover button on fenced code blocks** — Hovering over any line of a fenced code block surfaces a `$(clippy) Copy` link with the language tag (e.g. `` `typescript` ``) in the tooltip. Clicking copies the code content between the fences (fences excluded) to the clipboard, flashes a green highlight over the copied lines as visual confirmation (~300ms), shows a status-bar message, and suppresses the hover button on the same block for the same 300ms window so the click can't be repeated by accident and the flash isn't covered by the tooltip. Skips mermaid blocks. Configurable via `calliope.codeBlockCopyButton` (default `true`) (`src/providers/copyCodeBlockProvider.ts`, `src/extension.ts`)
+
 ## [0.7.2] - 2026-05-14
 
 ### Fixed

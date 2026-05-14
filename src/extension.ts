@@ -14,6 +14,7 @@ import { toggleCheckbox, detectCheckboxClick } from './handlers/checkboxToggle';
 import { detectMermaidDiagramClick } from './handlers/mermaidClick';
 import { MarkdownLinkProvider } from './providers/linkProvider';
 import { MarkdownHoverProvider } from './providers/hoverProvider';
+import { CopyCodeBlockHoverProvider, markRecentlyCopied } from './providers/copyCodeBlockProvider';
 import { ImageHoverProvider } from './decorations/elements/images';
 import { clearCache } from './parser/parseCache';
 import { initializePresentationMode, disposePresentationMode, togglePresentationMode } from './presentationMode';
@@ -26,6 +27,28 @@ import { getConfig } from './config';
 export { initializePresentationMode, togglePresentationMode } from './presentationMode';
 
 let previousSelection: vscode.Selection | undefined;
+
+let copyFlashDecoration: vscode.TextEditorDecorationType | undefined;
+let copyFlashTimer: NodeJS.Timeout | undefined;
+
+function flashCopyFeedback(editor: vscode.TextEditor, range: vscode.Range): void {
+  if (!copyFlashDecoration) {
+    copyFlashDecoration = vscode.window.createTextEditorDecorationType({
+      backgroundColor: 'rgba(80, 200, 120, 0.25)',
+      isWholeLine: true,
+    });
+  }
+  editor.setDecorations(copyFlashDecoration, [range]);
+  if (copyFlashTimer) {
+    clearTimeout(copyFlashTimer);
+  }
+  copyFlashTimer = setTimeout(() => {
+    if (copyFlashDecoration) {
+      editor.setDecorations(copyFlashDecoration, []);
+    }
+    copyFlashTimer = undefined;
+  }, 300);
+}
 
 export function activate(context: vscode.ExtensionContext): void {
   // Initialize decoration types
@@ -175,6 +198,45 @@ export function activate(context: vscode.ExtensionContext): void {
     )
   );
 
+  // Register HoverProvider for code block copy button
+  context.subscriptions.push(
+    vscode.languages.registerHoverProvider(
+      { language: 'markdown' },
+      new CopyCodeBlockHoverProvider()
+    )
+  );
+
+  // Register internal command for copying a code block range to clipboard
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      'calliope.internal.copyCodeBlock',
+      async (startLine: number, endLine: number) => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor || editor.document.languageId !== 'markdown') {
+          return;
+        }
+        const doc = editor.document;
+        if (
+          typeof startLine !== 'number' ||
+          typeof endLine !== 'number' ||
+          startLine < 0 ||
+          endLine < startLine ||
+          endLine >= doc.lineCount
+        ) {
+          return;
+        }
+        const start = new vscode.Position(startLine, 0);
+        const end = new vscode.Position(endLine, doc.lineAt(endLine).text.length);
+        const range = new vscode.Range(start, end);
+        const text = doc.getText(range);
+        await vscode.env.clipboard.writeText(text);
+        flashCopyFeedback(editor, range);
+        markRecentlyCopied(startLine, endLine);
+        vscode.window.setStatusBarMessage('$(check) Code copied to clipboard', 2000);
+      }
+    )
+  );
+
   // Register presentation mode toggle command
   context.subscriptions.push(
     vscode.commands.registerCommand('calliope.togglePresentationMode', async () => {
@@ -217,4 +279,12 @@ export function deactivate(): void {
   disposeAutoFormat();
   clearCache();
   cleanupUnusedSvgFiles();
+  if (copyFlashTimer) {
+    clearTimeout(copyFlashTimer);
+    copyFlashTimer = undefined;
+  }
+  if (copyFlashDecoration) {
+    copyFlashDecoration.dispose();
+    copyFlashDecoration = undefined;
+  }
 }

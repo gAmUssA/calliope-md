@@ -17,6 +17,7 @@ export interface CalliopeConfig {
   mermaidRenderMode: 'svg' | 'ascii' | 'auto';
   renderMetadata: boolean;
   renderTables: boolean;
+  codeBlockCopyButton: boolean;
 }
 
 export function getConfig(): CalliopeConfig {
@@ -39,5 +40,6 @@ export function getConfig(): CalliopeConfig {
     mermaidRenderMode: config.get<'svg' | 'ascii' | 'auto'>('mermaidRenderMode', 'auto'),
     renderMetadata: config.get<boolean>('renderMetadata', true),
     renderTables: config.get<boolean>('renderTables', false),
+    codeBlockCopyButton: config.get<boolean>('codeBlockCopyButton', true),
   };
 }
