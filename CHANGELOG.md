@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.4] - 2026-05-20
+
+### Changed
+
+- **Refreshed extension icon** — Same indigo palette (`#6366f1`), redrawn with a fuller swept-barb quill feather, gradient background, soft glow, drop shadow, and a flowing ink line (`images/icon.svg`, `images/icon.png` now 512×512)
+
 ## [0.8.3] - 2026-05-20
 
 ### Fixed
@@ -15,7 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Refreshed extension icon** — Same indigo palette (`#6366f1`), redrawn with a fuller swept-barb quill feather, gradient background, soft glow, drop shadow, and a flowing ink line (`images/icon.svg`, `images/icon.png` now 512×512)
 - **Bumped `mocha` to 11.7.5** — Fixes a test-runner crash on Node 24+/26 (`require is not defined in ES module scope`) from mocha 10's bundled yargs
 - **Pinned `@vscode/vsce` 3.9.1 as a devDependency** — `npm run package` now uses a reproducible local copy instead of a global install
 
