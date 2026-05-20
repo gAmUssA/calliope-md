@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.3] - 2026-05-20
+
+### Fixed
+
+- **Bare URLs no longer hide downstream content** — A bare URL (GFM autolink, e.g. `https://example.com`) is parsed by remark as a `link` node indistinguishable from a real `[text](url)` link. The link extractor assumed a `](` separator existed and searched the rest of the document for it, matching the next real link far below. This produced a hidden-syntax range spanning everything in between, which `letter-spacing: -1000px` collapsed to zero width — so list items, paragraphs, and other content between a bare URL and the next link silently vanished. The extractor now skips autolink-literals and confines the `](` search to the node's own span (`src/parser/markdownParser.ts`)
+
+### Changed
+
+- **Bumped `mocha` to 11.7.5** — Fixes a test-runner crash on Node 24+/26 (`require is not defined in ES module scope`) from mocha 10's bundled yargs
+- **Pinned `@vscode/vsce` 3.9.1 as a devDependency** — `npm run package` now uses a reproducible local copy instead of a global install
+
+### Tests
+
+- Added `test/markdownParser.test.js` — link extraction regression coverage (bare URLs, real links, the mixed bare-then-real scenario that caused the bug)
+- Added `test/frontmatter.test.js` — YAML frontmatter detection (valid, empty, mid-document `---`, lone delimiter), converting the former manual `test-*.md` fixtures into automated tests
+- Parser now bundles standalone to `out/parser/` via `npm run compile:parser` (wired into `pretest`) so tests can exercise it without the `vscode` dependency
+
 ## [0.8.2] - 2026-05-14
 
 ### Changed

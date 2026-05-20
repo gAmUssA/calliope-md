@@ -420,6 +420,11 @@ function extractLink(node: MdastNode, text: string, links: LinkElement[]): void 
   const pos = node.position;
   const url = node.url;
 
+  // Skip GFM autolink-literals (bare URLs like https://example.com). They
+  // appear as `link` nodes but have no `[text](url)` syntax in source, so
+  // there are no brackets to hide and no link text to style.
+  if (text[pos.start.offset] !== '[') return;
+
   // Link format: [text](url)
   // Find the ] position by looking at children end
   let textEnd = pos.start.offset + 1; // After [
@@ -430,9 +435,10 @@ function extractLink(node: MdastNode, text: string, links: LinkElement[]): void 
     }
   }
 
-  // Find ]( in the text
+  // Find ]( in the text, but only within this node's span — guards against
+  // matching `](` from a later link if this node is malformed.
   const closeBracketPos = text.indexOf('](', textEnd);
-  if (closeBracketPos === -1) return;
+  if (closeBracketPos === -1 || closeBracketPos >= pos.end.offset) return;
 
   const urlStart = closeBracketPos + 2; // After ](
   const urlEnd = pos.end.offset - 1; // Before )
