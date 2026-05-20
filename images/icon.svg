@@ -1,46 +1,62 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#818cf8"/>
+      <stop offset="0.45" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#4f46e5"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.32" cy="0.24" r="0.85">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.28"/>
+      <stop offset="0.55" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="feather" x1="0.15" y1="0.05" x2="0.85" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#dbe1ff"/>
+    </linearGradient>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#1e1b4b" flood-opacity="0.30"/>
+    </filter>
+  </defs>
+
   <!-- Background -->
-  <rect width="256" height="256" rx="32" fill="#6366f1"/>
+  <rect width="256" height="256" rx="52" fill="url(#bg)"/>
+  <rect width="256" height="256" rx="52" fill="url(#glow)"/>
 
-  <!-- Quill pen -->
-  <g fill="#ffffff">
-    <!-- Feather body - elegant curve -->
+  <!-- Ink writing line beneath the nib -->
+  <path d="M 66 210 C 102 228, 138 192, 174 210 C 194 220, 208 214, 218 204"
+        fill="none" stroke="#ffffff" stroke-opacity="0.55"
+        stroke-width="7" stroke-linecap="round"/>
+
+  <!-- Quill -->
+  <g filter="url(#soft)">
+    <!-- Full feather body -->
     <path d="
-      M 200 40
-      C 180 60, 160 80, 140 110
-      C 120 140, 100 170, 70 210
-      L 80 220
-      C 110 180, 130 150, 150 120
-      C 170 90, 190 70, 210 50
-      Z
-    "/>
+      M 212 46
+      C 150 70, 95 130, 72 206
+      C 140 173, 186 112, 212 46
+      Z" fill="url(#feather)"/>
 
-    <!-- Feather spine/rachis -->
-    <path d="
-      M 195 45
-      C 150 90, 110 150, 75 215
-      "
-      fill="none"
-      stroke="#6366f1"
-      stroke-width="3"
-      stroke-linecap="round"
-    />
+    <!-- Nib tip -->
+    <path d="M 72 206 L 47 233 L 62 240 L 90 211 Z" fill="url(#feather)"/>
 
-    <!-- Pen nib tip -->
-    <path d="
-      M 70 210
-      L 46 234
-      L 56 238
-      L 80 220
-      Z
-    "/>
+    <!-- Ink dot at the pen tip -->
+    <circle cx="44" cy="238" r="6.5" fill="#ffffff"/>
+  </g>
 
-    <!-- Ink dot -->
-    <circle cx="42" cy="238" r="6"/>
+  <!-- Central spine -->
+  <path d="M 204 52 C 150 102, 108 158, 76 206"
+        fill="none" stroke="#818cf8" stroke-width="3.5" stroke-linecap="round"/>
 
-    <!-- Feather barbs - left side -->
-    <path d="M 170 75 C 150 85, 140 75, 130 65" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-    <path d="M 155 95 C 135 105, 125 95, 115 85" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-    <path d="M 140 115 C 120 125, 110 115, 100 105" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+  <!-- Feather barbs branching from the spine, swept toward the tip -->
+  <g fill="none" stroke="#a5b4fc" stroke-width="2.6" stroke-linecap="round" stroke-opacity="0.8">
+    <!-- upper-left side -->
+    <path d="M 174 74 C 166 62, 156 58, 148 60"/>
+    <path d="M 150 106 C 142 94, 132 90, 124 92"/>
+    <path d="M 126 138 C 118 126, 108 122, 100 124"/>
+    <path d="M 102 170 C 94 158, 84 154, 76 156"/>
+    <!-- lower-right side (interleaved) -->
+    <path d="M 162 90 C 172 84, 182 86, 188 94"/>
+    <path d="M 138 122 C 148 116, 158 118, 164 126"/>
+    <path d="M 114 154 C 124 148, 134 150, 140 158"/>
   </g>
 </svg>
