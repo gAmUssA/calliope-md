@@ -57,7 +57,9 @@ export class CopyCodeBlockHoverProvider implements vscode.HoverProvider {
         `[$(clippy) Copy](command:calliope.internal.copyCodeBlock?${args} "Copy code block to clipboard")${langSuffix}`,
         true
       );
-      md.isTrusted = true;
+      // Trust is scoped to the single command this hover needs; anything else
+      // that ends up in the markdown stays inert.
+      md.isTrusted = { enabledCommands: ['calliope.internal.copyCodeBlock'] };
 
       return new vscode.Hover(md, blockRange);
     }

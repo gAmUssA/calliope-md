@@ -38,7 +38,8 @@
     "theme": "dark"
   },
   "activationEvents": [
-    "onLanguage:markdown"
+    "onLanguage:markdown",
+    "onLanguage:asciidoc"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -61,7 +62,8 @@
       },
       {
         "command": "calliope.formatOSPL",
-        "title": "Calliope: One Sentence Per Line"
+        "title": "Calliope: One Sentence Per Line",
+        "enablement": "editorLangId == markdown || editorLangId == asciidoc || editorLangId == plaintext"
       }
     ],
     "configuration": {
@@ -171,9 +173,10 @@
     "compile": "esbuild src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
     "compile:parser": "esbuild src/parser/markdownParser.ts --bundle --outfile=out/parser/markdownParser.js --format=cjs --platform=node",
     "compile:decorations": "esbuild src/decorations/decorationTypes.ts --bundle --outfile=out/decorations/decorationTypes.js --external:vscode --format=cjs --platform=node",
+    "compile:ospl": "esbuild src/formatters/asciidocOspl.ts --bundle --outfile=out/formatters/asciidocOspl.js --format=cjs --platform=node",
     "watch": "npm run compile -- --watch",
     "package": "vsce package",
-    "pretest": "npm run compile && npm run compile:parser && npm run compile:decorations",
+    "pretest": "npm run compile && npm run compile:parser && npm run compile:decorations && npm run compile:ospl",
     "test": "mocha 'test/**/*.test.js' --exit"
   },
   "devDependencies": {

@@ -21,7 +21,9 @@ export class MarkdownHoverProvider implements vscode.HoverProvider {
       if (textRange.contains(position)) {
         const markdown = new vscode.MarkdownString();
         markdown.appendMarkdown(`**Link:** [${link.url}](${link.url})`);
-        markdown.isTrusted = true;
+        // Deliberately NOT trusted: link.url comes from document content, and
+        // a trusted MarkdownString would let a crafted file smuggle
+        // executable command: links into the hover.
 
         return new vscode.Hover(markdown, textRange);
       }

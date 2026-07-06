@@ -5,6 +5,7 @@ import remarkGfm from 'remark-gfm';
 import { visitParents } from 'unist-util-visit-parents';
 import type { Node, Parent } from 'unist';
 import { splitSentences } from './sentenceSplitter';
+import { formatAsciidocOspl } from './asciidocOspl';
 
 interface MdastNode extends Node {
   position?: {
@@ -345,24 +346,65 @@ export function formatOsplInDocument(document: vscode.TextDocument): vscode.Text
 }
 
 /**
+ * Languages the OSPL command may touch. Sentence-splitting arbitrary files
+ * (source code, JSON, ...) is destructive, so anything else is refused.
+ */
+const OSPL_LANGUAGES = new Set(['markdown', 'asciidoc', 'plaintext']);
+
+/**
  * Command handler: format the active document using OSPL.
  */
 export async function formatOsplCommand(): Promise<void> {
   const editor = vscode.window.activeTextEditor;
-  if (!editor || editor.document.languageId !== 'markdown') {
-    vscode.window.showInformationMessage('No markdown file is active.');
+  if (!editor) {
+    vscode.window.showInformationMessage('No active editor.');
     return;
   }
 
-  const edits = formatOsplInDocument(editor.document);
-  if (edits.length === 0) {
-    vscode.window.showInformationMessage('Document is already formatted (one sentence per line).');
+  const document = editor.document;
+  if (!OSPL_LANGUAGES.has(document.languageId)) {
+    vscode.window.showInformationMessage(
+      'One Sentence Per Line works on Markdown, AsciiDoc, and plain text files.'
+    );
     return;
   }
 
+  const alreadyFormatted = 'Document is already formatted (one sentence per line).';
+
+  // Markdown uses the remark-based formatter, which understands inline markup
+  // as atomic. AsciiDoc and plain text use the line-based formatter with
+  // AsciiDoc-aware block fencing.
+  if (document.languageId === 'markdown') {
+    const edits = formatOsplInDocument(document);
+    if (edits.length === 0) {
+      vscode.window.showInformationMessage(alreadyFormatted);
+      return;
+    }
+
+    const wsEdit = new vscode.WorkspaceEdit();
+    for (const edit of edits) {
+      wsEdit.replace(document.uri, edit.range, edit.newText);
+    }
+    if (!(await vscode.workspace.applyEdit(wsEdit))) {
+      vscode.window.showErrorMessage('Could not apply One Sentence Per Line formatting.');
+    }
+    return;
+  }
+
+  const original = document.getText();
+  const formatted = formatAsciidocOspl(original);
+  if (formatted === original) {
+    vscode.window.showInformationMessage(alreadyFormatted);
+    return;
+  }
+
+  const fullRange = new vscode.Range(
+    document.positionAt(0),
+    document.positionAt(original.length)
+  );
   const wsEdit = new vscode.WorkspaceEdit();
-  for (const edit of edits) {
-    wsEdit.replace(editor.document.uri, edit.range, edit.newText);
+  wsEdit.replace(document.uri, fullRange, formatted);
+  if (!(await vscode.workspace.applyEdit(wsEdit))) {
+    vscode.window.showErrorMessage('Could not apply One Sentence Per Line formatting.');
   }
-  await vscode.workspace.applyEdit(wsEdit);
 }
