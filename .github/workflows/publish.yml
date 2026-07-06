@@ -1,8 +1,19 @@
 name: Publish Extension
 
 # Manual trigger only. Publishes the version currently in package.json to the
-# VS Code Marketplace (and Open VSX if OVSX_PAT is configured), but only after
-# the test job passes. Bump the version and commit before dispatching.
+# VS Code Marketplace and Open VSX, but only after the test job passes. Bump
+# the version and commit before dispatching.
+#
+# Marketplace auth uses Microsoft Entra ID workload identity federation
+# (OIDC) instead of a PAT, per
+# https://code.visualstudio.com/api/working-with-extensions/publishing-extension#secure-automated-publishing-to-visual-studio-marketplace
+# (Azure DevOps PATs are retired on December 1, 2026.)
+#
+# Required repository secrets:
+#   AZURE_CLIENT_ID       client ID of the managed identity / app registration
+#   AZURE_TENANT_ID       Entra tenant ID
+#   AZURE_SUBSCRIPTION_ID Azure subscription ID
+#   OVSX_PAT              Open VSX access token (Open VSX still uses PATs)
 on:
   workflow_dispatch:
     inputs:
@@ -10,6 +21,9 @@ on:
         description: 'Package only — skip publishing'
         type: boolean
         default: false
+
+permissions:
+  contents: read
 
 jobs:
   test:
@@ -31,6 +45,11 @@ jobs:
   publish:
     needs: test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Required to mint the OIDC token that azure/login exchanges for an
+      # Entra ID credential (workload identity federation)
+      id-token: write
     steps:
       - uses: actions/checkout@v4
 
@@ -52,21 +71,25 @@ jobs:
           path: calliope-md.vsix
           retention-days: 90
 
+      - name: Azure login (workload identity federation)
+        if: ${{ !inputs.dry-run }}
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
       - name: Publish to VS Code Marketplace
         if: ${{ !inputs.dry-run }}
-        env:
-          VSCE_PAT: ${{ secrets.VSCE_PAT }}
-        run: npx vsce publish --packagePath calliope-md.vsix
+        run: npx vsce publish --azure-credential --packagePath calliope-md.vsix
 
-      # Optional: publishes to Open VSX (VSCodium, Gitpod, Cursor, ...) when
-      # an OVSX_PAT secret exists; silently skipped otherwise.
       - name: Publish to Open VSX
         if: ${{ !inputs.dry-run }}
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
         run: |
           if [ -z "$OVSX_PAT" ]; then
-            echo "OVSX_PAT secret not configured — skipping Open VSX publish."
-            exit 0
+            echo "::error::OVSX_PAT secret is not configured"
+            exit 1
           fi
           npx ovsx publish calliope-md.vsix -p "$OVSX_PAT"
