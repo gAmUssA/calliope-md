@@ -107,9 +107,11 @@ export class ImageHoverProvider implements vscode.HoverProvider {
 
         const imageUri = resolveImagePath(url, document.uri);
         if (imageUri) {
+          // Deliberately NOT trusted and no HTML support: alt/url come from
+          // document content, and trusting them would let a crafted file
+          // smuggle executable command: links into the hover. Plain markdown
+          // image syntax renders fine without either flag.
           const markdown = new vscode.MarkdownString();
-          markdown.isTrusted = true;
-          markdown.supportHtml = true;
 
           // Show full image in hover
           markdown.appendMarkdown(`**${alt || 'Image'}**\n\n`);

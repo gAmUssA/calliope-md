@@ -4,6 +4,7 @@ import type { FencedCodeElement } from '../../parser/types';
 import type { DecorationTypes } from '../decorationTypes';
 import { getVisibilityState, getCursorPositions } from '../visibilityState';
 import { getConfig } from '../../config';
+import { getLogger } from '../../log';
 
 export interface MermaidDiagramDecorations {
   mermaidRendered: vscode.DecorationOptions[];
@@ -11,23 +12,40 @@ export interface MermaidDiagramDecorations {
   mermaidError: vscode.DecorationOptions[];
 }
 
-// SVG rendering cache: content hash -> data URI
+// Render caches, keyed by `${documentUri}#${theme}#${md5(code)}`.
+// - The document URI scopes eviction: cleaning up after edits in one file
+//   must not evict another file's diagrams.
+// - The theme is part of the key because SVG colors are baked in at render
+//   time; a theme switch must produce a cache miss, not a stale-colored SVG.
 const svgCache = new Map<string, string>();
-
-// ASCII rendering cache: content hash -> ascii text
 const asciiCache = new Map<string, string>();
-
-// Error cache: content hash -> error message
 const errorCache = new Map<string, string>();
 
-// Track active diagram hashes for cleanup
-const activeDiagramHashes = new Set<string>();
+// Keys seen in the current update cycle (used for per-document eviction)
+const activeDiagramKeys = new Set<string>();
+
+// Safety cap so diagrams from long-closed documents can't accumulate forever.
+const CACHE_MAX_ENTRIES = 300;
+
+function capCache(cache: Map<string, string>): void {
+  while (cache.size > CACHE_MAX_ENTRIES) {
+    const oldest = cache.keys().next().value;
+    if (oldest === undefined) break;
+    cache.delete(oldest);
+  }
+}
+
+function isDarkTheme(): boolean {
+  const kind = vscode.window.activeColorTheme.kind;
+  return kind === vscode.ColorThemeKind.Dark || kind === vscode.ColorThemeKind.HighContrast;
+}
 
 /**
- * Calculate hash of mermaid code for caching
+ * Cache key for a diagram: document-scoped, theme-aware content hash.
  */
-function hashContent(content: string): string {
-  return crypto.createHash('md5').update(content).digest('hex');
+function diagramCacheKey(documentUri: vscode.Uri, code: string): string {
+  const hash = crypto.createHash('md5').update(code).digest('hex');
+  return `${documentUri.toString()}#${isDarkTheme() ? 'dark' : 'light'}#${hash}`;
 }
 
 /**
@@ -40,24 +58,14 @@ function svgToDataUri(svg: string): string {
 }
 
 /**
- * Clean up unused SVG files
- * Note: This is now a no-op since we use data URIs instead of files
- * Kept for backward compatibility
- */
-export function cleanupUnusedSvgFiles(): void {
-  // No-op: we no longer use file system for SVG storage
-  // Data URIs are stored in memory cache only
-}
-
-/**
- * Clear all mermaid caches - call when document changes significantly
- * This prevents stale diagrams from showing after content is removed
+ * Clear all mermaid caches - called on theme change (SVG colors are baked in)
+ * and on deactivate.
  */
 export function clearMermaidCaches(): void {
   svgCache.clear();
   asciiCache.clear();
   errorCache.clear();
-  activeDiagramHashes.clear();
+  activeDiagramKeys.clear();
 }
 
 /**
@@ -126,56 +134,60 @@ function renderMermaidToAscii(code: string): string {
 /**
  * Render mermaid with error handling and caching
  */
-async function renderMermaidWithCache(code: string, hash: string): Promise<{ dataUri?: string; ascii?: string; error?: string }> {
+async function renderMermaidWithCache(code: string, key: string): Promise<{ dataUri?: string; ascii?: string; error?: string }> {
   const config = getConfig();
   const mode = config.mermaidRenderMode;
-  
+
   // Check cache first based on mode
   // In auto mode, check SVG first since it's preferred
   if (mode === 'svg' || mode === 'auto') {
-    if (svgCache.has(hash)) {
-      return { dataUri: svgCache.get(hash) };
+    if (svgCache.has(key)) {
+      return { dataUri: svgCache.get(key) };
     }
   }
-  
+
   if (mode === 'ascii' || mode === 'auto') {
-    if (asciiCache.has(hash)) {
-      return { ascii: asciiCache.get(hash) };
+    if (asciiCache.has(key)) {
+      return { ascii: asciiCache.get(key) };
     }
   }
-  
-  if (errorCache.has(hash)) {
-    return { error: errorCache.get(hash) };
+
+  if (errorCache.has(key)) {
+    return { error: errorCache.get(key) };
   }
-  
+
   // Render based on mode
   try {
     if (mode === 'ascii') {
       // ASCII mode only
       const ascii = renderMermaidToAscii(code);
-      asciiCache.set(hash, ascii);
+      asciiCache.set(key, ascii);
+      capCache(asciiCache);
       return { ascii };
     } else if (mode === 'svg') {
       // SVG mode only
       const svg = await renderMermaidToSVG(code);
       const dataUri = svgToDataUri(svg);
-      
-      svgCache.set(hash, dataUri);
+
+      svgCache.set(key, dataUri);
+      capCache(svgCache);
       return { dataUri };
     } else {
       // Auto mode: try SVG, fallback to ASCII
       try {
         const svg = await renderMermaidToSVG(code);
         const dataUri = svgToDataUri(svg);
-        
-        svgCache.set(hash, dataUri);
+
+        svgCache.set(key, dataUri);
+        capCache(svgCache);
         return { dataUri };
       } catch (svgError) {
         // SVG failed, try ASCII fallback
-        console.warn('SVG rendering failed, falling back to ASCII:', svgError);
+        getLogger().warn(`Mermaid SVG rendering failed, falling back to ASCII: ${svgError}`);
         try {
           const ascii = renderMermaidToAscii(code);
-          asciiCache.set(hash, ascii);
+          asciiCache.set(key, ascii);
+          capCache(asciiCache);
           return { ascii };
         } catch (asciiError) {
           throw svgError; // Throw original SVG error if ASCII also fails
@@ -184,8 +196,9 @@ async function renderMermaidWithCache(code: string, hash: string): Promise<{ dat
     }
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
-    errorCache.set(hash, errorMsg);
-    console.error('Mermaid rendering error:', errorMsg);
+    errorCache.set(key, errorMsg);
+    capCache(errorCache);
+    getLogger().error(`Mermaid rendering error: ${errorMsg}`);
     return { error: errorMsg };
   }
 }
@@ -204,10 +217,16 @@ export function createMermaidDiagramDecorations(
   };
   
   const cursorPositions = getCursorPositions(editor);
-  
-  // Clear active diagram hashes for this update cycle
-  activeDiagramHashes.clear();
-  
+  const docPrefix = `${editor.document.uri.toString()}#`;
+
+  // Clear the keys seen for THIS document in the previous cycle. Keys are
+  // document-prefixed, so other documents' entries are untouched.
+  for (const key of activeDiagramKeys) {
+    if (key.startsWith(docPrefix)) {
+      activeDiagramKeys.delete(key);
+    }
+  }
+
   for (const block of mermaidBlocks) {
     // Check visibility state
     const visibility = getVisibilityState(cursorPositions, block.range, block.contentRange);
@@ -232,12 +251,12 @@ export function createMermaidDiagramDecorations(
     
     // Calculate the total number of lines in the mermaid block (including fences)
     const totalLines = block.range.end.line - block.range.start.line + 1;
-    
-    // Calculate hash for caching
-    const hash = hashContent(code);
-    
+
+    // Calculate cache key (document-scoped, theme-aware)
+    const key = diagramCacheKey(editor.document.uri, code);
+
     // Mark this diagram as active
-    activeDiagramHashes.add(hash);
+    activeDiagramKeys.add(key);
 
     // Check if we have cached results BEFORE kicking off render. If the result
     // is already cached, the synchronous reads below will apply it in this
@@ -247,19 +266,19 @@ export function createMermaidDiagramDecorations(
     //     -> .then fires -> executeCommand('calliope.internal.updateDecorations')
     //     -> triggerUpdateDecorations (150ms) -> updateDecorations -> ...
     // Only attach the re-trigger when this is a real cache miss (first render).
-    const cachedDataUri = svgCache.get(hash);
-    const cachedAscii = asciiCache.get(hash);
-    const cachedError = errorCache.get(hash);
+    const cachedDataUri = svgCache.get(key);
+    const cachedAscii = asciiCache.get(key);
+    const cachedError = errorCache.get(key);
     const isCacheMiss = !cachedDataUri && !cachedAscii && !cachedError;
 
     if (isCacheMiss) {
       // Cache miss — async render in progress, fire one update when it lands.
-      renderMermaidWithCache(code, hash).then(({ dataUri, ascii, error }) => {
+      renderMermaidWithCache(code, key).then(({ dataUri, ascii, error }) => {
         if (dataUri || ascii || error) {
           vscode.commands.executeCommand('calliope.internal.updateDecorations');
         }
       }).catch(err => {
-        console.error('Unexpected error in mermaid rendering:', err);
+        getLogger().error(`Unexpected error in mermaid rendering: ${err}`);
       });
     }
     
@@ -286,8 +305,8 @@ export function createMermaidDiagramDecorations(
     );
     
     if (cachedError) {
-      // Log error to console instead of showing inline (prevents diagram overlap)
-      console.warn(`[Calliope] Mermaid rendering failed at line ${block.openFenceRange.start.line}: ${cachedError}`);
+      // Log error instead of showing inline (prevents diagram overlap)
+      getLogger().warn(`Mermaid rendering failed at line ${block.openFenceRange.start.line}: ${cachedError}`);
       // Don't add any decorations - let the code block display normally
       continue;
     } else if (cachedDataUri) {
@@ -377,24 +396,17 @@ export function createMermaidDiagramDecorations(
     }
   }
   
-  // Clean up cache entries for diagrams that no longer exist in the document
-  // This prevents stale SVGs from showing after mermaid blocks are deleted
-  for (const hash of svgCache.keys()) {
-    if (!activeDiagramHashes.has(hash)) {
-      svgCache.delete(hash);
+  // Clean up cache entries for diagrams that no longer exist in THIS document.
+  // Other documents' entries (different key prefix) are left alone so switching
+  // between files doesn't force re-renders.
+  for (const cache of [svgCache, asciiCache, errorCache]) {
+    for (const key of cache.keys()) {
+      if (key.startsWith(docPrefix) && !activeDiagramKeys.has(key)) {
+        cache.delete(key);
+      }
     }
   }
-  for (const hash of asciiCache.keys()) {
-    if (!activeDiagramHashes.has(hash)) {
-      asciiCache.delete(hash);
-    }
-  }
-  for (const hash of errorCache.keys()) {
-    if (!activeDiagramHashes.has(hash)) {
-      errorCache.delete(hash);
-    }
-  }
-  
+
   return result;
 }
 
@@ -454,9 +466,9 @@ export class MermaidHoverProvider implements vscode.HoverProvider {
     
     const markdown = new vscode.MarkdownString();
     
-    // Calculate hash and check ASCII cache
-    const hash = hashContent(code);
-    const cachedAscii = asciiCache.get(hash);
+    // Calculate cache key and check ASCII cache
+    const key = diagramCacheKey(document.uri, code);
+    const cachedAscii = asciiCache.get(key);
     
     if (cachedAscii) {
       markdown.appendCodeblock(cachedAscii, '');

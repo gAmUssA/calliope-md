@@ -28,3 +28,4 @@ images/demo.gif
 *.vsix
 *.vsix.zip
 .github/**
+out/formatters/**

@@ -6,8 +6,6 @@ import {
   triggerUpdateDecorationsIfViewportChanged,
   updateDecorationsImmediate,
   toggleEnabled,
-  setEnabled,
-  isDecorationEnabled,
 } from './decorations/decorationManager';
 import { handleSelectionChange, setCursorChangeCallback } from './handlers/cursorTracker';
 import { toggleCheckbox, detectCheckboxClick } from './handlers/checkboxToggle';
@@ -16,12 +14,13 @@ import { MarkdownLinkProvider } from './providers/linkProvider';
 import { MarkdownHoverProvider } from './providers/hoverProvider';
 import { CopyCodeBlockHoverProvider, markRecentlyCopied } from './providers/copyCodeBlockProvider';
 import { ImageHoverProvider } from './decorations/elements/images';
-import { clearCache } from './parser/parseCache';
+import { clearCache, invalidateCache } from './parser/parseCache';
 import { initializePresentationMode, disposePresentationMode, togglePresentationMode } from './presentationMode';
-import { cleanupUnusedSvgFiles, clearMermaidCaches, MermaidHoverProvider } from './decorations/elements/mermaidDiagrams';
-import { formatTablesCommand, formatTablesInDocument, triggerAutoFormatTables, disposeAutoFormat } from './formatters/tableFormatter';
+import { clearMermaidCaches, MermaidHoverProvider } from './decorations/elements/mermaidDiagrams';
+import { formatTablesCommand, formatTablesInDocument, disposeAutoFormat } from './formatters/tableFormatter';
 import { formatOsplCommand } from './formatters/osplFormatter';
 import { getConfig } from './config';
+import { disposeLogger } from './log';
 
 // Re-export for testing
 export { initializePresentationMode, togglePresentationMode } from './presentationMode';
@@ -73,9 +72,15 @@ export function activate(context: vscode.ExtensionContext): void {
       const editor = vscode.window.activeTextEditor;
       if (editor && event.document === editor.document && event.document.languageId === 'markdown') {
         triggerUpdateDecorations(editor);
-        // Cleanup unused mermaid SVG files periodically
-        cleanupUnusedSvgFiles();
       }
+    })
+  );
+
+  // Document close - drop its parse cache entry so closed files don't
+  // accumulate parsed ASTs for the whole session
+  context.subscriptions.push(
+    vscode.workspace.onDidCloseTextDocument((document) => {
+      invalidateCache(document.uri.toString());
     })
   );
 
@@ -91,6 +96,21 @@ export function activate(context: vscode.ExtensionContext): void {
 
         // Handle visibility state changes
         handleSelectionChange(event);
+      }
+    })
+  );
+
+  // Theme changes - mermaid SVGs bake theme colors in at render time, so the
+  // caches must be cleared and visible editors re-rendered. Immediate updates:
+  // the debounce timer is shared, so debounced calls in a loop would cancel
+  // each other and only the last editor would refresh.
+  context.subscriptions.push(
+    vscode.window.onDidChangeActiveColorTheme(() => {
+      clearMermaidCaches();
+      for (const editor of vscode.window.visibleTextEditors) {
+        if (editor.document.languageId === 'markdown') {
+          updateDecorationsImmediate(editor);
+        }
       }
     })
   );
@@ -122,9 +142,13 @@ export function activate(context: vscode.ExtensionContext): void {
         disposeDecorations();
         initializeDecorations();
 
-        // Re-apply to active editor
-        if (vscode.window.activeTextEditor?.document.languageId === 'markdown') {
-          triggerUpdateDecorations(vscode.window.activeTextEditor);
+        // Re-apply to every visible markdown editor, not just the active one —
+        // disposing the decoration types stripped them all. Immediate updates
+        // because the shared debounce timer would drop all but the last.
+        for (const editor of vscode.window.visibleTextEditors) {
+          if (editor.document.languageId === 'markdown') {
+            updateDecorationsImmediate(editor);
+          }
         }
       }
     })
@@ -276,7 +300,8 @@ export function deactivate(): void {
   disposePresentationMode();
   disposeAutoFormat();
   clearCache();
-  cleanupUnusedSvgFiles();
+  clearMermaidCaches();
+  disposeLogger();
   if (copyFlashTimer) {
     clearTimeout(copyFlashTimer);
     copyFlashTimer = undefined;

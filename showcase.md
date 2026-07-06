@@ -79,16 +79,16 @@ sequenceDiagram
 
 ## Tables Without the Noise
 
-| Element        | Markdown        | Rendered Output           |
-|----------------|-----------------|---------------------------|
-| Heading        | `# Title`       | **Title** (larger, bold)  |
-| Bold           | `**text**`      | **text**                  |
-| Italic         | `*text*`        | *text*                    |
-| Strikethrough  | `~~text~~`      | ~~text~~                  |
-| Inline code    | `` `code` ``    | `code`                    |
-| Task (open)    | `- [ ] todo`    | ☐ todo                    |
-| Task (done)    | `- [x] done`    | ☑ ~~done~~                |
-| Link           | `[text](url)`   | [text](#) (URL hidden)    |
+| Element       | Markdown      | Rendered Output          |
+|---------------|---------------|--------------------------|
+| Heading       | `# Title`     | **Title** (larger, bold) |
+| Bold          | `**text**`    | **text**                 |
+| Italic        | `*text*`      | *text*                   |
+| Strikethrough | `~~text~~`    | ~~text~~                 |
+| Inline code   | `` `code` ``  | `code`                   |
+| Task (open)   | `- [ ] todo`  | ☐ todo                   |
+| Task (done)   | `- [x] done`  | ☑ ~~done~~               |
+| Link          | `[text](url)` | [text](#) (URL hidden)   |
 
 ## Blockquotes & Lists
 
@@ -119,12 +119,12 @@ sequenceDiagram
 
 ## Settings at a Glance
 
-| Setting                            | Default | Purpose                            |
-|------------------------------------|---------|------------------------------------|
-| `calliope.enabled`                 | `true`  | Master toggle                      |
-| `calliope.ghostOpacity`            | `0.3`   | Opacity of ghosted syntax          |
-| `calliope.renderMermaidDiagrams`   | `false` | **[Experimental]** live SVG render |
-| `calliope.renderTables`            | `false` | **[Experimental]** clean tables    |
+| Setting                          | Default | Purpose                            |
+|----------------------------------|---------|------------------------------------|
+| `calliope.enabled`               | `true`  | Master toggle                      |
+| `calliope.ghostOpacity`          | `0.3`   | Opacity of ghosted syntax          |
+| `calliope.renderMermaidDiagrams` | `false` | **[Experimental]** live SVG render |
+| `calliope.renderTables`          | `false` | **[Experimental]** clean tables    |
 
 ## Commands
 

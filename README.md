@@ -22,24 +22,24 @@ Calliope brings Ulysses-style hybrid WYSIWYG editing to VS Code. Write in Markdo
 
 ### What Gets Rendered
 
-| Element | Rendered As |
-|---------|-------------|
-| `# Heading` | **Heading** (larger, bold) |
-| `**bold**` | **bold** |
-| `*italic*` | *italic* |
-| `~~strike~~` | ~~strike~~ |
-| `` `code` `` | `code` with background |
-| `` `ts:code` `` | TypeScript-highlighted code |
-| `[link](url)` | [link](#) (clickable, URL hidden) |
-| `- [ ] task` | ☐ task (clickable checkbox) |
-| `- [x] done` | ☑ ~~done~~ (strikethrough) |
-| `> blockquote` | Styled with left border and background |
-| `---` | Visual horizontal separator |
-| `` ```lang `` | Dimmed fence markers, preserved syntax |
-| `![alt](img)` | Inline thumbnail preview (200px) |
-| `- item` / `1. item` | Styled bullets (•) and numbers |
-| `---`/YAML/`---` | Dimmed frontmatter block |
-| `` ```mermaid `` | Inline diagram (SVG or ASCII art) |
+| Element              | Rendered As                            |
+|----------------------|----------------------------------------|
+| `# Heading`          | **Heading** (larger, bold)             |
+| `**bold**`           | **bold**                               |
+| `*italic*`           | *italic*                               |
+| `~~strike~~`         | ~~strike~~                             |
+| `` `code` ``         | `code` with background                 |
+| `` `ts:code` ``      | TypeScript-highlighted code            |
+| `[link](url)`        | [link](#) (clickable, URL hidden)      |
+| `- [ ] task`         | ☐ task (clickable checkbox)            |
+| `- [x] done`         | ☑ ~~done~~ (strikethrough)             |
+| `> blockquote`       | Styled with left border and background |
+| `---`                | Visual horizontal separator            |
+| `` ```lang ``        | Dimmed fence markers, preserved syntax |
+| `![alt](img)`        | Inline thumbnail preview (200px)       |
+| `- item` / `1. item` | Styled bullets (•) and numbers         |
+| `---`/YAML/`---`     | Dimmed frontmatter block               |
+| `` ```mermaid ``     | Inline diagram (SVG or ASCII art)      |
 
 ### Three-State Visibility
 
@@ -64,31 +64,31 @@ code --install-extension calliope-md-0.4.3.vsix
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| `Calliope: Toggle Inline Rendering` | Enable/disable all rendering |
-| `Calliope: Toggle Task Checkbox` | Toggle checkbox at cursor |
+| Command                              | Description                     |
+|--------------------------------------|---------------------------------|
+| `Calliope: Toggle Inline Rendering`  | Enable/disable all rendering    |
+| `Calliope: Toggle Task Checkbox`     | Toggle checkbox at cursor       |
 | `Calliope: Toggle Presentation Mode` | Distraction-free mode for demos |
 
 ## Settings
 
-| Setting | Default | Description |
-|---------|---------|-------------|
-| `calliope.enabled` | `true` | Enable inline rendering |
-| `calliope.ghostOpacity` | `0.3` | Opacity for ghost state (0-1) |
-| `calliope.renderHeaders` | `true` | Render headers with styling |
-| `calliope.renderEmphasis` | `true` | Render bold/italic/strikethrough |
-| `calliope.renderTaskLists` | `true` | Render task checkboxes |
-| `calliope.renderLinks` | `true` | Render links with hidden URLs |
-| `calliope.renderInlineCode` | `true` | Render inline code with background |
-| `calliope.renderBlockquotes` | `true` | Render blockquotes with left border |
-| `calliope.renderHorizontalRules` | `true` | Render horizontal rules as separators |
-| `calliope.renderCodeBlocks` | `true` | Style fenced code block delimiters |
-| `calliope.renderImages` | `true` | Render inline image previews |
-| `calliope.renderLists` | `true` | Render list markers with bullet styling |
-| `calliope.renderMetadata` | `true` | Dim YAML frontmatter blocks |
+| Setting                          | Default | Description                                       |
+|----------------------------------|---------|---------------------------------------------------|
+| `calliope.enabled`               | `true`  | Enable inline rendering                           |
+| `calliope.ghostOpacity`          | `0.3`   | Opacity for ghost state (0-1)                     |
+| `calliope.renderHeaders`         | `true`  | Render headers with styling                       |
+| `calliope.renderEmphasis`        | `true`  | Render bold/italic/strikethrough                  |
+| `calliope.renderTaskLists`       | `true`  | Render task checkboxes                            |
+| `calliope.renderLinks`           | `true`  | Render links with hidden URLs                     |
+| `calliope.renderInlineCode`      | `true`  | Render inline code with background                |
+| `calliope.renderBlockquotes`     | `true`  | Render blockquotes with left border               |
+| `calliope.renderHorizontalRules` | `true`  | Render horizontal rules as separators             |
+| `calliope.renderCodeBlocks`      | `true`  | Style fenced code block delimiters                |
+| `calliope.renderImages`          | `true`  | Render inline image previews                      |
+| `calliope.renderLists`           | `true`  | Render list markers with bullet styling           |
+| `calliope.renderMetadata`        | `true`  | Dim YAML frontmatter blocks                       |
 | `calliope.renderMermaidDiagrams` | `false` | **[EXPERIMENTAL]** Render mermaid diagrams inline |
-| `calliope.mermaidRenderMode` | `auto` | Diagram mode: `svg`, `ascii`, or `auto` |
+| `calliope.mermaidRenderMode`     | `auto`  | Diagram mode: `svg`, `ascii`, or `auto`           |
 
 ## Tips
 
@@ -113,6 +113,7 @@ code --install-extension calliope-md-0.4.3.vsix
 > Never modify the document. All rendering is purely visual via decorations.
 
 Calliope preserves:
+
 - Undo/redo history
 - Git diffs
 - Compatibility with other extensions
