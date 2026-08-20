@@ -7,8 +7,14 @@ import { getParsedDocument } from '../parser/parseCache';
  */
 export function detectMermaidDiagramClick(
   editor: vscode.TextEditor,
-  previousSelection: vscode.Selection | undefined
+  kind: vscode.TextEditorSelectionChangeKind | undefined
 ): boolean {
+  // Only react to actual mouse clicks — keyboard navigation across a fence
+  // line must not have its cursor hijacked.
+  if (kind !== vscode.TextEditorSelectionChangeKind.Mouse) {
+    return false;
+  }
+
   // Only trigger on single-click selections (not drag selections)
   if (!editor.selection.isEmpty) {
     return false;

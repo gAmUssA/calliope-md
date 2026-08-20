@@ -25,8 +25,8 @@ import { getConfig } from './config';
 
 // Re-export for testing
 export { initializePresentationMode, togglePresentationMode } from './presentationMode';
-
-let previousSelection: vscode.Selection | undefined;
+export { detectCheckboxClick } from './handlers/checkboxToggle';
+export { detectMermaidDiagramClick } from './handlers/mermaidClick';
 
 let copyFlashDecoration: vscode.TextEditorDecorationType | undefined;
 let copyFlashTimer: NodeJS.Timeout | undefined;
@@ -83,13 +83,11 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.window.onDidChangeTextEditorSelection((event) => {
       if (event.textEditor.document.languageId === 'markdown') {
-        // Check for checkbox click
-        detectCheckboxClick(event.textEditor, previousSelection);
-        
-        // Check for mermaid diagram click
-        detectMermaidDiagramClick(event.textEditor, previousSelection);
-        
-        previousSelection = event.selections[0];
+        // Check for checkbox click (mouse only)
+        detectCheckboxClick(event.textEditor, event.kind);
+
+        // Check for mermaid diagram click (mouse only)
+        detectMermaidDiagramClick(event.textEditor, event.kind);
 
         // Handle visibility state changes
         handleSelectionChange(event);
