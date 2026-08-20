@@ -39,13 +39,19 @@ export async function toggleCheckbox(
 }
 
 /**
- * Detects if a click occurred on a checkbox and toggles it.
+ * Detects if a mouse click occurred on a checkbox and toggles it.
  * Called from selection change event.
  */
 export function detectCheckboxClick(
   editor: vscode.TextEditor,
-  previousSelection: vscode.Selection | undefined
+  kind: vscode.TextEditorSelectionChangeKind | undefined
 ): boolean {
+  // Only react to actual mouse clicks — keyboard cursor movement onto a
+  // checkbox line must never toggle it.
+  if (kind !== vscode.TextEditorSelectionChangeKind.Mouse) {
+    return false;
+  }
+
   // Only trigger on single-click selections (not drag selections)
   if (!editor.selection.isEmpty) {
     return false;
