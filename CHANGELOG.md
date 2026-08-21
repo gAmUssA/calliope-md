@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Blockquote left bars and horizontal rules now actually render** — both decorations were declared with CSS shorthand properties (`borderLeft`, `borderBottom`) that are not part of VS Code's decoration API. VS Code builds decoration CSS from a fixed property set and silently drops anything outside it, so the blockquote bar never drew (only its background tint showed) and horizontal rules drew nothing at all. Both now use the supported `borderWidth` + `borderStyle` pair (`src/decorations/decorationTypes.ts`)
+- **Table labels render at their intended smaller size** — `fontSize` is not a property of `ThemableDecorationAttachmentRenderOptions` and was likewise dropped, so the label rendered at full size. It now goes through `textDecoration`, the same idiom the header decorations already use (`src/decorations/elements/tables.ts`)
+- **`make icon` no longer halves the icon resolution** — all four converter branches hardcoded 256×256, while the icon shipped since v0.8.4 is 512×512. Because `make package` depends on the `icon` target, any Makefile-driven release silently downgraded the icon. Now 512×512 throughout (`Makefile`)
+
+### Changed
+
+- **Redrawn extension icon** — the previous mark washed out at the 128px size the Marketplace list renders: the barbs and ink line were too low-contrast to read. The feather is fuller, the spine and barbs are thicker and darker for contrast against the white body, and the ink line is heavier, all on the same indigo brand gradient (`images/icon.svg`, `images/icon.png`)
+
+### Tests
+
+- Added `test/decorationOptions.test.js` — validates every decoration render option against the properties VS Code actually supports, catching silently-dropped CSS shorthand. Covers top-level options, `before`/`after` attachments, the specific side-border shorthands, and `borderColor` declared without any border geometry
+
 ## [0.8.5] - 2026-08-20
 
 ### Fixed

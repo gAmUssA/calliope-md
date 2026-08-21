@@ -154,7 +154,11 @@ export function createDecorationTypes(ghostOpacity: number): DecorationTypes {
 
     // Phase 2: Blockquotes
     blockquoteBorder: vscode.window.createTextEditorDecorationType({
-      borderLeft: '3px solid',
+      // VS Code has no borderLeft property — it builds CSS from a fixed set
+      // (border/borderWidth/borderStyle/borderColor/...), so shorthand sides
+      // are silently dropped. Express the left bar via borderWidth instead.
+      borderWidth: '0 0 0 3px',
+      borderStyle: 'solid',
       borderColor: new vscode.ThemeColor('textBlockQuote.border'),
       backgroundColor: new vscode.ThemeColor('textBlockQuote.background'),
       isWholeLine: true,
@@ -165,7 +169,9 @@ export function createDecorationTypes(ghostOpacity: number): DecorationTypes {
 
     // Phase 2: Horizontal rules
     horizontalRule: vscode.window.createTextEditorDecorationType({
-      borderBottom: '1px solid',
+      // Same as blockquoteBorder: borderBottom is not a supported property.
+      borderWidth: '0 0 1px 0',
+      borderStyle: 'solid',
       borderColor: new vscode.ThemeColor('editorLineNumber.foreground'),
       isWholeLine: true,
     }),

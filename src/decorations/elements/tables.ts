@@ -76,7 +76,10 @@ export function createTableDecorations(
             color: new vscode.ThemeColor('editorLineNumber.foreground'),
             fontStyle: 'italic',
             fontWeight: 'normal',
-            fontSize: '0.85em',
+            // Attachment render options have no fontSize property, so it is
+            // dropped. Smuggle it through textDecoration, the same idiom the
+            // header decorations use in decorationTypes.ts.
+            textDecoration: 'none; font-size: 0.85em;',
           },
         },
       });

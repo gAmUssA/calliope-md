@@ -170,9 +170,10 @@
   "scripts": {
     "compile": "esbuild src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
     "compile:parser": "esbuild src/parser/markdownParser.ts --bundle --outfile=out/parser/markdownParser.js --format=cjs --platform=node",
+    "compile:decorations": "esbuild src/decorations/decorationTypes.ts --bundle --outfile=out/decorations/decorationTypes.js --external:vscode --format=cjs --platform=node",
     "watch": "npm run compile -- --watch",
     "package": "vsce package",
-    "pretest": "npm run compile && npm run compile:parser",
+    "pretest": "npm run compile && npm run compile:parser && npm run compile:decorations",
     "test": "mocha 'test/**/*.test.js' --exit"
   },
   "devDependencies": {

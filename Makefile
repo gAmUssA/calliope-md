@@ -27,16 +27,16 @@ icon: images/icon.svg
 	@mkdir -p images
 	@if command -v rsvg-convert >/dev/null 2>&1; then \
 		echo "Using rsvg-convert..."; \
-		rsvg-convert -w 256 -h 256 images/icon.svg -o images/icon.png; \
+		rsvg-convert -w 512 -h 512 images/icon.svg -o images/icon.png; \
 	elif command -v inkscape >/dev/null 2>&1; then \
 		echo "Using inkscape..."; \
-		inkscape -w 256 -h 256 images/icon.svg -o images/icon.png; \
+		inkscape -w 512 -h 512 images/icon.svg -o images/icon.png; \
 	elif command -v convert >/dev/null 2>&1; then \
 		echo "Using ImageMagick convert..."; \
-		convert -background none -size 256x256 images/icon.svg images/icon.png; \
+		convert -background none -size 512x512 images/icon.svg images/icon.png; \
 	elif command -v magick >/dev/null 2>&1; then \
 		echo "Using ImageMagick magick..."; \
-		magick -background none -size 256x256 images/icon.svg images/icon.png; \
+		magick -background none -size 512x512 images/icon.svg images/icon.png; \
 	else \
 		echo "Error: No SVG converter found. Install one of:"; \
 		echo "  - librsvg (brew install librsvg)"; \

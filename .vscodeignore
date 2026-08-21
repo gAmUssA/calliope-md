@@ -20,6 +20,7 @@ showcase.md
 broken-readme.md
 test/**
 out/parser/**
+out/decorations/**
 1.flink.sql
 Makefile
 images/icon.svg
