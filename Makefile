@@ -26,9 +26,9 @@ clean:
 icon: images/icon-source.png
 	@mkdir -p images
 	@if command -v magick >/dev/null 2>&1; then \
-		magick images/icon-source.png -resize 512x512 images/icon.png; \
+		magick images/icon-source.png -resize 512x512 -strip -define png:compression-level=9 images/icon.png; \
 	elif command -v convert >/dev/null 2>&1; then \
-		convert images/icon-source.png -resize 512x512 images/icon.png; \
+		convert images/icon-source.png -resize 512x512 -strip -define png:compression-level=9 images/icon.png; \
 	else \
 		echo "Error: ImageMagick not found. Install with: brew install imagemagick"; \
 		exit 1; \

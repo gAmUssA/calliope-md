@@ -11,6 +11,8 @@ tsconfig.json
 openspec/**
 docs/**
 .claude/**
+.beans/**
+.beans.yml
 .history/**
 .windsurf/**
 test-calliope.md
