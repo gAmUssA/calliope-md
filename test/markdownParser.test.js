@@ -104,9 +104,9 @@ describe('parseMarkdown — link extraction', () => {
     });
   });
 
-  describe('mixed bare + real links (the broken-readme.md scenario)', () => {
+  describe('mixed bare + real links (the samples/broken-readme.md scenario)', () => {
     it('a bare URL early in the doc does not corrupt a real link far later', () => {
-      // This is the exact pattern from broken-readme.md that caused content
+      // This is the exact pattern from samples/broken-readme.md that caused content
       // between the bare URL and the next real link to disappear.
       const lines = ['Intro paragraph with https://aistudio.google.com/apikey here.'];
       // Pad with content that must remain unaffected.

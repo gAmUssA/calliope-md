@@ -176,10 +176,12 @@
     "compile:parser": "esbuild src/parser/markdownParser.ts --bundle --outfile=out/parser/markdownParser.js --format=cjs --platform=node",
     "compile:decorations": "esbuild src/decorations/decorationTypes.ts --bundle --outfile=out/decorations/decorationTypes.js --external:vscode --format=cjs --platform=node",
     "compile:images": "esbuild src/decorations/elements/images.ts --bundle --outfile=out/decorations/images.js --external:vscode --format=cjs --platform=node",
+    "compile:splitter": "esbuild src/formatters/sentenceSplitter.ts --bundle --outfile=out/formatters/sentenceSplitter.js --format=cjs --platform=node",
+    "compile:tables": "esbuild src/formatters/tableFormatter.ts --bundle --outfile=out/formatters/tableFormatter.js --external:vscode --format=cjs --platform=node",
     "compile:ospl": "esbuild src/formatters/asciidocOspl.ts --bundle --outfile=out/formatters/asciidocOspl.js --format=cjs --platform=node",
     "watch": "npm run compile -- --watch",
     "package": "vsce package",
-    "pretest": "npm run compile && npm run compile:parser && npm run compile:decorations && npm run compile:images && npm run compile:ospl",
+    "pretest": "npm run compile && npm run compile:parser && npm run compile:decorations && npm run compile:images && npm run compile:splitter && npm run compile:tables && npm run compile:ospl",
     "test": "mocha 'test/**/*.test.js' --exit"
   },
   "devDependencies": {

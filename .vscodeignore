@@ -15,11 +15,9 @@ docs/**
 .beans.yml
 .history/**
 .windsurf/**
-test-calliope.md
-test-*.md
 debug-*.js
 showcase.md
-broken-readme.md
+samples/**
 test/**
 out/parser/**
 out/decorations/**

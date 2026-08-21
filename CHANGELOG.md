@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Tests
+
+- Added `test/sentenceSplitter.test.js` — 24 cases covering the One Sentence Per Line splitter: titles and abbreviations that must not end a sentence, multi-period forms (`e.g.`, `U.S.`), decimals, domains, file names and ellipses treated as atomic, closing quotes and brackets staying with their sentence, and the rule that a split requires an uppercase, quote or digit to follow
+- Added `test/tableFormatter.test.js` — 16 cases covering column padding, that only whitespace is ever changed, idempotence, separator-row integrity, the three-character minimum width, multiple tables in one document, single-column tables, and left/centre/right alignment
+
+### Changed
+
+- Manual test documents moved out of the repository root into `samples/`, with a `samples/README.md` explaining what each exercises. They were never used by the automated suite, which runs entirely on inline fixtures
+- `.idea/` added to `.gitignore`
+
 ## [0.9.2] - 2026-08-20
 
 ### Changed
