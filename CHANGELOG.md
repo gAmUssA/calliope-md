@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-08-20
+
 ### Added
 
 - **One Sentence Per Line for AsciiDoc and plain text** — `Calliope: One Sentence Per Line` now works on `.adoc` and `.txt` files, not just Markdown. Inline macros, inline code spans, and bare URLs are treated as atomic so sentence splitting never cuts through them; splits that would leave a line starting with a list marker are merged back, and numeric markers are capped at three digits so year-led prose stays prose. Block delimiters only latch when a matching close exists, so heading underlines and `--` signature separators no longer swallow the rest of the document (`src/formatters/asciidocOspl.ts`)
@@ -28,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **New extension icon** — the previous mark washed out at the 128px size the Marketplace list renders, with the barbs and ink line too low-contrast to read. Replaced with a new quill mark: a fuller feather with a defined nib and a flowing ink stroke over an indigo gradient, with a soft highlight. The icon is now a raster master (`images/icon-source.png`, 1024×1024 with transparent rounded corners) that `make icon` downscales to the shipped 512×512 `images/icon.png`; the previous `images/icon.svg` source is removed
-- **Extension bundle cut by 66%** — `beautiful-mermaid`'s exports map routes `import` and `require` to separate files, so loading it both ways bundled two full copies of the library (396KB of 951KB). Both call sites now use `require()`, which esbuild still initializes lazily on first diagram render. A new `compile:prod` (`--minify`) is wired to `vscode:prepublish`, which also means `vsce package` builds fresh output instead of shipping whatever was left in `out/`. `out/extension.js` 958KB → 329KB; the packaged `.vsix` 257KB → 170KB
+- **Extension bundle cut by 66%** — `beautiful-mermaid`'s exports map routes `import` and `require` to separate files, so loading it both ways bundled two full copies of the library (396KB of 951KB). Both call sites now use `require()`, which esbuild still initializes lazily on first diagram render. A new `compile:prod` (`--minify`) is wired to `vscode:prepublish`, which also means `vsce package` builds fresh output instead of shipping whatever was left in `out/`. `out/extension.js` 958KB → 329KB
 - Diagnostics route to a "Calliope" output channel instead of `console.*` (`src/log.ts`)
 - Deleted the dead `src/mermaid/` webview module (~1,100 lines) left over from the pre-`beautiful-mermaid` rendering approach, plus unused exports
 - The test-only OSPL bundle is excluded from the packaged `.vsix`
