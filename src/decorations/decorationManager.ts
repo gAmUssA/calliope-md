@@ -20,7 +20,13 @@ import { createMetadataDecorations, applyMetadataDecorations } from './elements/
 import { createTableDecorations, applyTableDecorations, clearTableDecorations } from './elements/tables';
 
 let decorationTypes: DecorationTypes | undefined;
-let updateTimeout: NodeJS.Timeout | undefined;
+
+// Debounce timers, one per document URI rather than one global. A single
+// shared timer meant that scheduling an update for a second editor cancelled
+// the first, so a loop over visible editors only ever refreshed the last one.
+const updateTimeouts = new Map<string, NodeJS.Timeout>();
+
+const DEBOUNCE_MS = 150;
 let isEnabled = true;
 let lastBufferedRange: vscode.Range | undefined;
 let lastBufferedDocUri: string | undefined;
@@ -41,10 +47,10 @@ export function disposeDecorations(): void {
     disposeDecorationTypes(decorationTypes);
     decorationTypes = undefined;
   }
-  if (updateTimeout) {
-    clearTimeout(updateTimeout);
-    updateTimeout = undefined;
+  for (const timer of updateTimeouts.values()) {
+    clearTimeout(timer);
   }
+  updateTimeouts.clear();
   lastBufferedRange = undefined;
   lastBufferedDocUri = undefined;
 }
@@ -66,10 +72,75 @@ export function isDecorationEnabled(): boolean {
  * Triggers a debounced decoration update.
  */
 export function triggerUpdateDecorations(editor: vscode.TextEditor): void {
-  if (updateTimeout) {
-    clearTimeout(updateTimeout);
+  const uri = editor.document.uri.toString();
+  cancelPendingUpdate(uri);
+
+  updateTimeouts.set(
+    uri,
+    setTimeout(() => {
+      updateTimeouts.delete(uri);
+      updateEditorsForDocument(uri, editor);
+    }, DEBOUNCE_MS)
+  );
+}
+
+/**
+ * Debounced update for every editor currently showing `document`.
+ *
+ * The same document can be open in several editor groups. Decorations are
+ * applied per editor, so refreshing only the active one leaves the other
+ * groups holding ranges that were never recomputed — and because decorations
+ * default to `OpenOpen`, those stale ranges grow over text typed next to them.
+ * A stale `syntaxHidden` range is both invisible and zero-width, so the text
+ * swallowed by it disappears in that group until it is refreshed.
+ */
+export function triggerUpdateDecorationsForDocument(document: vscode.TextDocument): void {
+  const uri = document.uri.toString();
+  cancelPendingUpdate(uri);
+
+  updateTimeouts.set(
+    uri,
+    setTimeout(() => {
+      updateTimeouts.delete(uri);
+      updateEditorsForDocument(uri);
+    }, DEBOUNCE_MS)
+  );
+}
+
+function cancelPendingUpdate(uri: string): void {
+  const pending = updateTimeouts.get(uri);
+  if (pending) {
+    clearTimeout(pending);
+    updateTimeouts.delete(uri);
   }
-  updateTimeout = setTimeout(() => updateDecorations(editor), 150);
+}
+
+/**
+ * Applies decorations to every visible editor showing `uri`. `fallback` covers
+ * the case where the editor is not in `visibleTextEditors` yet, which happens
+ * on the very first update after activation.
+ */
+function updateEditorsForDocument(uri: string, fallback?: vscode.TextEditor): void {
+  let updated = false;
+
+  for (const editor of vscode.window.visibleTextEditors) {
+    if (editor.document.uri.toString() === uri) {
+      updateDecorations(editor);
+      updated = true;
+    }
+  }
+
+  if (!updated && fallback) {
+    updateDecorations(fallback);
+  }
+}
+
+/**
+ * Cancels any pending update for a document and forgets its timer. Called when
+ * a document closes so timers do not fire against editors that are gone.
+ */
+export function cancelUpdatesForDocument(uri: string): void {
+  cancelPendingUpdate(uri);
 }
 
 /**
@@ -108,10 +179,7 @@ export function triggerUpdateDecorationsIfViewportChanged(editor: vscode.TextEdi
  * Also cancels any pending debounced update to prevent double-application.
  */
 export function updateDecorationsImmediate(editor: vscode.TextEditor): void {
-  if (updateTimeout) {
-    clearTimeout(updateTimeout);
-    updateTimeout = undefined;
-  }
+  cancelPendingUpdate(editor.document.uri.toString());
   updateDecorations(editor);
 }
 

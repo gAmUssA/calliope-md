@@ -3,8 +3,10 @@ import {
   initializeDecorations,
   disposeDecorations,
   triggerUpdateDecorations,
+  triggerUpdateDecorationsForDocument,
   triggerUpdateDecorationsIfViewportChanged,
   updateDecorationsImmediate,
+  cancelUpdatesForDocument,
   toggleEnabled,
 } from './decorations/decorationManager';
 import { handleSelectionChange, setCursorChangeCallback } from './handlers/cursorTracker';
@@ -66,12 +68,15 @@ export function activate(context: vscode.ExtensionContext): void {
     triggerUpdateDecorations(vscode.window.activeTextEditor);
   }
 
-  // Document changes - re-parse and re-decorate
+  // Document changes - re-parse and re-decorate every editor showing the
+  // changed document. Keying off activeTextEditor missed the other groups when
+  // a file was split across two, leaving them with ranges that were never
+  // recomputed; stale syntaxHidden ranges are zero-width, so text typed beside
+  // one vanished in the group that did not refresh.
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument((event) => {
-      const editor = vscode.window.activeTextEditor;
-      if (editor && event.document === editor.document && event.document.languageId === 'markdown') {
-        triggerUpdateDecorations(editor);
+      if (event.document.languageId === 'markdown') {
+        triggerUpdateDecorationsForDocument(event.document);
       }
     })
   );
@@ -81,6 +86,9 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.workspace.onDidCloseTextDocument((document) => {
       invalidateCache(document.uri.toString());
+      // Drop any pending debounced update so it cannot fire against an editor
+      // that has gone away.
+      cancelUpdatesForDocument(document.uri.toString());
     })
   );
 

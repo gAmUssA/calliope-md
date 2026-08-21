@@ -1,11 +1,11 @@
 ---
 # vscode-calliope-md-amin
 title: Text edits only re-decorate the active editor
-status: todo
+status: completed
 type: bug
 priority: high
 created_at: 2026-08-21T03:34:34Z
-updated_at: 2026-08-21T03:34:34Z
+updated_at: 2026-08-21T03:41:12Z
 ---
 
 `onDidChangeTextDocument` (src/extension.ts:71-77) re-decorates only

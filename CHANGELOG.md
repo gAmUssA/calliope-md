@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.1] - 2026-08-20
+
+### Fixed
+
+- **Text typed in a split view no longer disappears in the other group** — `onDidChangeTextDocument` re-decorated only `vscode.window.activeTextEditor`, so when the same file was open in two editor groups the unfocused group never recomputed its decorations. Decorations do not set `rangeBehavior`, so they use VS Code's default `OpenOpen` and *grow* when text is inserted at their edges; `syntaxHidden` is `opacity: 0` plus `letterSpacing: -1000px`, i.e. invisible and zero-width. Text typed next to a hidden marker was therefore swallowed by a stale hidden range and rendered invisible in the unfocused group until it regained focus. This is the same failure mode as the v0.8.3 bare-URL bug. Every visible editor showing the changed document is now re-decorated (`src/extension.ts`)
+- **Debounce is per document instead of one shared timer** — `updateTimeout` was a single module-level global, so scheduling an update for one editor cancelled any pending update for another. That made a plain `for (const editor of visibleTextEditors)` loop silently drop all but the last editor, a trap the theme-change and config-change handlers already had to work around with immediate updates. Timers are now keyed by document URI, and a pending update is cancelled when its document closes so it cannot fire against an editor that is gone (`src/decorations/decorationManager.ts`)
+
+### Tests
+
+- Added `test/multiEditorDecorations.test.js` — drives the real decoration pipeline with two editors on one document and fake timers, asserting that both are re-decorated, that unrelated documents are untouched, that non-markdown changes are ignored, and that closing a document cancels its pending update. Four of its six cases fail against the previous implementation
+
 ## [0.9.0] - 2026-08-20
 
 ### Added
