@@ -55,6 +55,10 @@ Gaps found during the pass and **already closed on `main` while it was running**
 
 ## Paths safe to delete
 
+> **Done, 2026-08-20.** `openspec/` was removed in the v0.9.2 release, along with the
+> now-orphaned `.github/skills/openspec-*` and `.github/prompts/opsx-*` tooling that
+> only worked against it. Everything below is retained as the record of what went.
+
 After diffing this migration, the whole of `openspec/` can go:
 
 ```

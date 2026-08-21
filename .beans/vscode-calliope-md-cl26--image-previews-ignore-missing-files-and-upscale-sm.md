@@ -1,10 +1,11 @@
 ---
 # vscode-calliope-md-cl26
 title: Image previews ignore missing files and upscale small images
-status: todo
+status: completed
 type: bug
+priority: normal
 created_at: 2026-08-21T03:24:50Z
-updated_at: 2026-08-21T03:24:50Z
+updated_at: 2026-08-21T03:48:24Z
 ---
 
 `openspec/specs/image-rendering/spec.md` states two requirements that `src/decorations/elements/images.ts` does not implement.

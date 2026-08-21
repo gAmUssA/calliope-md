@@ -3,7 +3,7 @@
   "type": "commonjs",
   "displayName": "Calliope - Hybrid Markdown Editor",
   "description": "Ulysses-style inline Markdown rendering. Write in Markdown, see it rendered — syntax hides until you need it.",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "publisher": "vikgamov",
   "license": "MIT",
   "icon": "images/icon.png",
@@ -123,8 +123,8 @@
         },
         "calliope.renderImages": {
           "type": "boolean",
-          "default": true,
-          "description": "Render inline image previews"
+          "default": false,
+          "description": "Render inline image previews (opt-in: previews resolve files from disk or the network)"
         },
         "calliope.renderLists": {
           "type": "boolean",
@@ -175,10 +175,11 @@
     "vscode:prepublish": "npm run compile:prod",
     "compile:parser": "esbuild src/parser/markdownParser.ts --bundle --outfile=out/parser/markdownParser.js --format=cjs --platform=node",
     "compile:decorations": "esbuild src/decorations/decorationTypes.ts --bundle --outfile=out/decorations/decorationTypes.js --external:vscode --format=cjs --platform=node",
+    "compile:images": "esbuild src/decorations/elements/images.ts --bundle --outfile=out/decorations/images.js --external:vscode --format=cjs --platform=node",
     "compile:ospl": "esbuild src/formatters/asciidocOspl.ts --bundle --outfile=out/formatters/asciidocOspl.js --format=cjs --platform=node",
     "watch": "npm run compile -- --watch",
     "package": "vsce package",
-    "pretest": "npm run compile && npm run compile:parser && npm run compile:decorations && npm run compile:ospl",
+    "pretest": "npm run compile && npm run compile:parser && npm run compile:decorations && npm run compile:images && npm run compile:ospl",
     "test": "mocha 'test/**/*.test.js' --exit"
   },
   "devDependencies": {

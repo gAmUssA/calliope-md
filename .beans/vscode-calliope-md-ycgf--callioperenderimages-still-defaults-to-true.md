@@ -1,11 +1,11 @@
 ---
 # vscode-calliope-md-ycgf
 title: calliope.renderImages still defaults to true
-status: todo
+status: completed
 type: bug
 priority: high
 created_at: 2026-08-21T03:24:43Z
-updated_at: 2026-08-21T03:24:43Z
+updated_at: 2026-08-21T03:48:24Z
 ---
 
 The archived change `2026-03-16-optional-inline-images` made inline image rendering opt-in, and `openspec/specs/image-rendering/spec.md` records it as a requirement ("The setting SHALL default to `false` (disabled)"). See ADR-0016.

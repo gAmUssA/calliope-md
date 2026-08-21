@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.2] - 2026-08-20
+
+### Changed
+
+- **Inline image previews are now opt-in** — `calliope.renderImages` defaults to `false`. This was the documented intent of the 2026-03-16 change that made image rendering optional, but the default was never actually flipped in either `package.json` or `src/config.ts`, so previews stayed on for everyone. Previews resolve paths from disk and fetch remote URLs, which should not happen without asking. **Users who want previews must now enable `calliope.renderImages`** (`package.json`, `src/config.ts`)
+
+### Fixed
+
+- **Small images are no longer upscaled** — the preview hardcoded `width: '200px'`, which blew a 32px icon up to 200px. Attachment render options have no `max-width`, so the cap is injected as CSS through `textDecoration` (the idiom used for heading sizes and table rules); images narrower than 200px now render at their natural size, and wider ones scale down with `height: 'auto'` preserving aspect ratio (`src/decorations/elements/images.ts`)
+- **Missing local images show a placeholder instead of nothing** — a preview whose file does not exist rendered as empty space, indistinguishable from the feature being switched off. A missing local file now shows a warning marker in `editorWarning.foreground`, and its hover names the unresolved path. Remote URLs are unchanged: the decoration API exposes no load-failure callback, so a 404 cannot be detected synchronously (`src/decorations/elements/images.ts`)
+
+### Removed
+
+- **`openspec/` retired** — its content was migrated to `docs/adr/` (19 ADRs) and to beans. The now-orphaned `.github/skills/openspec-*` and `.github/prompts/opsx-*` tooling, which only worked against `openspec/config.yaml`, is removed with it. `docs/adr/MIGRATION.md` records what mapped to what
+
+### Documentation
+
+- README's settings table listed `calliope.renderImages` as `true` and omitted `calliope.renderTables` and `calliope.codeBlockCopyButton` entirely. Every setting is now documented with the default that `package.json` actually declares
+
+### Tests
+
+- Added `test/imageDecorations.test.js` — 9 cases over real files in a temp directory covering the width cap, missing local files, relative path resolution, remote URLs, hovers, and that image syntax is never hidden
+
 ## [0.9.1] - 2026-08-20
 
 ### Fixed

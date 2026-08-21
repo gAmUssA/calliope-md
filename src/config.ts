@@ -34,7 +34,7 @@ export function getConfig(): CalliopeConfig {
     renderBlockquotes: config.get<boolean>('renderBlockquotes', true),
     renderHorizontalRules: config.get<boolean>('renderHorizontalRules', true),
     renderCodeBlocks: config.get<boolean>('renderCodeBlocks', true),
-    renderImages: config.get<boolean>('renderImages', true),
+    renderImages: config.get<boolean>('renderImages', false),
     renderLists: config.get<boolean>('renderLists', true),
     renderMermaidDiagrams: config.get<boolean>('renderMermaidDiagrams', false),
     mermaidRenderMode: config.get<'svg' | 'ascii' | 'auto'>('mermaidRenderMode', 'auto'),

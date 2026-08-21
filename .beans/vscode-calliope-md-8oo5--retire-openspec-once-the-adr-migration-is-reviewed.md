@@ -1,11 +1,11 @@
 ---
 # vscode-calliope-md-8oo5
 title: Retire openspec/ once the ADR migration is reviewed
-status: todo
+status: completed
 type: task
 priority: low
 created_at: 2026-08-21T03:24:58Z
-updated_at: 2026-08-21T03:24:58Z
+updated_at: 2026-08-21T03:48:24Z
 ---
 
 `openspec/` was migrated to `docs/adr/` additively — nothing was deleted, so the two can be diffed first. `docs/adr/MIGRATION.md` records the full mapping, the three stale specs, and what is lost by deleting.

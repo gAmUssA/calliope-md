@@ -84,9 +84,11 @@ code --install-extension calliope-md-0.4.3.vsix
 | `calliope.renderBlockquotes`     | `true`  | Render blockquotes with left border               |
 | `calliope.renderHorizontalRules` | `true`  | Render horizontal rules as separators             |
 | `calliope.renderCodeBlocks`      | `true`  | Style fenced code block delimiters                |
-| `calliope.renderImages`          | `true`  | Render inline image previews                      |
+| `calliope.renderImages`          | `false` | Render inline image previews (opt-in — resolves files from disk and fetches remote URLs) |
 | `calliope.renderLists`           | `true`  | Render list markers with bullet styling           |
 | `calliope.renderMetadata`        | `true`  | Dim YAML frontmatter blocks                       |
+| `calliope.renderTables`          | `false` | **Experimental.** Render tables with styled headers, hidden pipes and alignment indicators |
+| `calliope.codeBlockCopyButton`   | `true`  | Show a "Copy code" link when hovering a fenced code block |
 | `calliope.renderMermaidDiagrams` | `false` | **[EXPERIMENTAL]** Render mermaid diagrams inline |
 | `calliope.mermaidRenderMode`     | `auto`  | Diagram mode: `svg`, `ascii`, or `auto`           |
 
