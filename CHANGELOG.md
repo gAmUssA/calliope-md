@@ -7,15 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **One Sentence Per Line for AsciiDoc and plain text** — `Calliope: One Sentence Per Line` now works on `.adoc` and `.txt` files, not just Markdown. Inline macros, inline code spans, and bare URLs are treated as atomic so sentence splitting never cuts through them; splits that would leave a line starting with a list marker are merged back, and numeric markers are capped at three digits so year-led prose stays prose. Block delimiters only latch when a matching close exists, so heading underlines and `--` signature separators no longer swallow the rest of the document (`src/formatters/asciidocOspl.ts`)
+- **CI workflow** — `.github/workflows/ci.yml` runs the test suite and a `vsce package` smoke test on pull requests and pushes to `main`, uploading the resulting `.vsix` as an artifact
+
 ### Fixed
 
 - **Blockquote left bars and horizontal rules now actually render** — both decorations were declared with CSS shorthand properties (`borderLeft`, `borderBottom`) that are not part of VS Code's decoration API. VS Code builds decoration CSS from a fixed property set and silently drops anything outside it, so the blockquote bar never drew (only its background tint showed) and horizontal rules drew nothing at all. Both now use the supported `borderWidth` + `borderStyle` pair (`src/decorations/decorationTypes.ts`)
 - **Table labels render at their intended smaller size** — `fontSize` is not a property of `ThemableDecorationAttachmentRenderOptions` and was likewise dropped, so the label rendered at full size. It now goes through `textDecoration`, the same idiom the header decorations already use (`src/decorations/elements/tables.ts`)
-- **`make icon` no longer halves the icon resolution** — all four converter branches hardcoded 256×256, while the icon shipped since v0.8.4 is 512×512. Because `make package` depends on the `icon` target, any Makefile-driven release silently downgraded the icon. Now 512×512 throughout (`Makefile`)
+- **`make icon` no longer halves the icon resolution** — all four converter branches hardcoded 256×256, while the icon shipped since v0.8.4 is 512×512. Because `make package` depends on the `icon` target, any Makefile-driven release silently downgraded the icon (`Makefile`)
+- **OSPL command restricted to prose languages** — an `enablement` clause plus a runtime guard limit the command to markdown, asciidoc, and plaintext, so it can never sentence-split source code
+- **Mixed line endings preserved** — each line keeps its own ending instead of being normalized, so a mixed LF/CRLF file no longer churns wholesale on format
+- **`applyEdit` failures surfaced** — formatter edits that fail are now reported instead of silently dropped
+- **Mermaid cache correctness** — caches are keyed by document + theme + content with per-document eviction and a 300-entry cap, and diagrams fully re-render on a color theme change
+- **Parse cache no longer grows for a whole session** — entries are evicted when their document closes
+- **Config changes re-decorate every visible editor**, not only the active one
+- **Hover injection vector closed** — hovers built from document content are no longer blanket-trusted; the copy-button hover's trust is scoped to its single command
 
 ### Changed
 
 - **New extension icon** — the previous mark washed out at the 128px size the Marketplace list renders, with the barbs and ink line too low-contrast to read. Replaced with a new quill mark: a fuller feather with a defined nib and a flowing ink stroke over an indigo gradient, with a soft highlight. The icon is now a raster master (`images/icon-source.png`, 1024×1024 with transparent rounded corners) that `make icon` downscales to the shipped 512×512 `images/icon.png`; the previous `images/icon.svg` source is removed
+- **Extension bundle cut by 66%** — `beautiful-mermaid`'s exports map routes `import` and `require` to separate files, so loading it both ways bundled two full copies of the library (396KB of 951KB). Both call sites now use `require()`, which esbuild still initializes lazily on first diagram render. A new `compile:prod` (`--minify`) is wired to `vscode:prepublish`, which also means `vsce package` builds fresh output instead of shipping whatever was left in `out/`. `out/extension.js` 958KB → 329KB; the packaged `.vsix` 257KB → 170KB
+- Diagnostics route to a "Calliope" output channel instead of `console.*` (`src/log.ts`)
+- Deleted the dead `src/mermaid/` webview module (~1,100 lines) left over from the pre-`beautiful-mermaid` rendering approach, plus unused exports
+- The test-only OSPL bundle is excluded from the packaged `.vsix`
 
 ### Tests
 
