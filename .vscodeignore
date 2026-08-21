@@ -23,7 +23,7 @@ out/parser/**
 out/decorations/**
 1.flink.sql
 Makefile
-images/icon.svg
+images/icon-source.png
 images/demo.gif
 *.vsix
 *.vsix.zip

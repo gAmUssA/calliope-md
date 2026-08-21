@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Redrawn extension icon** — the previous mark washed out at the 128px size the Marketplace list renders: the barbs and ink line were too low-contrast to read. The feather is fuller, the spine and barbs are thicker and darker for contrast against the white body, and the ink line is heavier, all on the same indigo brand gradient (`images/icon.svg`, `images/icon.png`)
+- **New extension icon** — the previous mark washed out at the 128px size the Marketplace list renders, with the barbs and ink line too low-contrast to read. Replaced with a new quill mark: a fuller feather with a defined nib and a flowing ink stroke over an indigo gradient, with a soft highlight. The icon is now a raster master (`images/icon-source.png`, 1024×1024 with transparent rounded corners) that `make icon` downscales to the shipped 512×512 `images/icon.png`; the previous `images/icon.svg` source is removed
 
 ### Tests
 
