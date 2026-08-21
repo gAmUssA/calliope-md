@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.5] - 2026-08-20
+
 ### Fixed
 
-- **Keyboard navigation no longer toggles task checkboxes** — `detectCheckboxClick` and `detectMermaidDiagramClick` ran on every `onDidChangeTextEditorSelection` event without inspecting `event.kind`, so any caret landing in the leading `- [ ] ` span of a task line flipped the box — arrow keys, `Home`, `Ctrl+Home`, and the caret VS Code restores when a file is reopened. The span widens with indentation (columns 0-6 at the root, 0-10 two levels in), so walking down a nested list rewrote most of it. Neither `calliope.renderTaskLists` nor `calliope.enabled` gated the handler, so there was no way to switch the behaviour off. Both handlers now take the selection-change kind and return early unless it is `TextEditorSelectionChangeKind.Mouse`, leaving click-to-toggle intact (`src/handlers/checkboxToggle.ts`, `src/handlers/mermaidClick.ts`, `src/extension.ts`)
+- **Keyboard navigation no longer toggles task checkboxes** — `detectCheckboxClick` and `detectMermaidDiagramClick` ran on every `onDidChangeTextEditorSelection` event without inspecting `event.kind`, so any caret landing in the leading `- [ ] ` span of a task line flipped the box — arrow keys, `Home`, `Ctrl+Home`, and the caret VS Code restores when a file is reopened. The span widens with indentation (columns 0-6 at the root, 0-10 two levels in), so walking down a nested list rewrote most of it. Neither `calliope.renderTaskLists` nor `calliope.enabled` gated the handler, so there was no way to switch the behaviour off. Both handlers now take the selection-change kind and return early unless it is `TextEditorSelectionChangeKind.Mouse`, leaving click-to-toggle intact (`src/handlers/checkboxToggle.ts`, `src/handlers/mermaidClick.ts`, `src/extension.ts`). Reported and fixed by [@gregzaal](https://github.com/gregzaal) ([#3](https://github.com/gAmUssA/calliope-md/pull/3))
 
 ### Tests
 
