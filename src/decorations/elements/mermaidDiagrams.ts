@@ -73,8 +73,11 @@ export function clearMermaidCaches(): void {
  */
 async function renderMermaidToSVG(code: string): Promise<string> {
   try {
-    // Dynamic import to avoid loading mermaid until needed
-    const { renderMermaid } = await import('beautiful-mermaid');
+    // Lazy require so mermaid is not loaded until a diagram is first rendered.
+    // Must match the require() in renderMermaidToAscii below: this package's
+    // exports map sends import/require to separate files (index.js/index.cjs),
+    // so mixing the two forms bundles ~190KB of duplicate library.
+    const { renderMermaid } = require('beautiful-mermaid');
     
     // Detect if we're in dark mode
     const isDarkMode = vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.Dark ||
@@ -113,7 +116,7 @@ async function renderMermaidToSVG(code: string): Promise<string> {
  */
 function renderMermaidToAscii(code: string): string {
   try {
-    // Synchronous import since renderMermaidAscii is sync
+    // Synchronous require since renderMermaidAscii is sync (see note above)
     const { renderMermaidAscii } = require('beautiful-mermaid');
     
     // Render the diagram with compact options to fit in hover tooltips

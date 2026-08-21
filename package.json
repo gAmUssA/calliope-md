@@ -171,6 +171,8 @@
   },
   "scripts": {
     "compile": "esbuild src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
+    "compile:prod": "npm run compile -- --minify",
+    "vscode:prepublish": "npm run compile:prod",
     "compile:parser": "esbuild src/parser/markdownParser.ts --bundle --outfile=out/parser/markdownParser.js --format=cjs --platform=node",
     "compile:decorations": "esbuild src/decorations/decorationTypes.ts --bundle --outfile=out/decorations/decorationTypes.js --external:vscode --format=cjs --platform=node",
     "compile:ospl": "esbuild src/formatters/asciidocOspl.ts --bundle --outfile=out/formatters/asciidocOspl.js --format=cjs --platform=node",
