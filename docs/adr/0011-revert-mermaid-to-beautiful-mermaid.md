@@ -1,6 +1,6 @@
 # 11. Revert Mermaid rendering to beautiful-mermaid data URIs
 
-- **Status:** Accepted
+- **Status:** Accepted. The load mechanism is superseded by ADR-0018 (single `require` specifier) and the cache key by ADR-0019 (document + theme + content).
 - **Date:** 2026-02-09
 
 ## Context

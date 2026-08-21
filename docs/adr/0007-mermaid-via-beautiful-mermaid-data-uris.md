@@ -1,6 +1,6 @@
 # 7. Render Mermaid diagrams with beautiful-mermaid as SVG data URIs
 
-- **Status:** Superseded by ADR-0009
+- **Status:** Superseded by ADR-0009, then reinstated by ADR-0011. The "dynamically imported" load mechanism is superseded by ADR-0018.
 - **Date:** 2026-02-02
 
 ## Context

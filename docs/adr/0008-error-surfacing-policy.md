@@ -1,6 +1,6 @@
 # 8. Surface presentation-mode failures as notifications, keep render failures on the console
 
-- **Status:** Accepted
+- **Status:** Accepted. The render-failure half is superseded by ADR-0017 (diagnostics moved off the console to an output channel).
 - **Date:** 2026-02-02
 
 ## Context
