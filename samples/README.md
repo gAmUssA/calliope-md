@@ -7,6 +7,7 @@ inline fixtures — and they are excluded from the packaged `.vsix`.
 | File | What it exercises |
 |---|---|
 | `test-calliope.md` | General inline rendering across every element type |
+| `test-blockquotes.md` | Blockquotes: single and multi-paragraph, blank quoted lines, markup inside a quote, nesting, and a quote glued to the paragraph above it |
 | `test-mermaid.md` | Mermaid diagram rendering and the ASCII fallback |
 | `test-tables.md` | GFM tables, alignment and the save-time column formatter |
 | `test-typescript-highlighting.md` | Fenced code blocks and the copy-code hover |

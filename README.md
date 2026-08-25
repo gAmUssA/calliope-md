@@ -33,7 +33,7 @@ Calliope brings Ulysses-style hybrid WYSIWYG editing to VS Code. Write in Markdo
 | `[link](url)`        | [link](#) (clickable, URL hidden)      |
 | `- [ ] task`         | ☐ task (clickable checkbox)            |
 | `- [x] done`         | ☑ ~~done~~ (strikethrough)             |
-| `> blockquote`       | Styled with left border and background |
+| `> blockquote`       | Italic prose behind a bar, `>` hidden  |
 | `---`                | Visual horizontal separator            |
 | `` ```lang ``        | Dimmed fence markers, preserved syntax |
 | `![alt](img)`        | Inline thumbnail preview (200px)       |
@@ -82,6 +82,7 @@ code --install-extension calliope-md-0.4.3.vsix
 | `calliope.renderLinks`           | `true`  | Render links with hidden URLs                     |
 | `calliope.renderInlineCode`      | `true`  | Render inline code with background                |
 | `calliope.renderBlockquotes`     | `true`  | Render blockquotes with left border               |
+| `calliope.italicBlockquotes`     | `true`  | Set quoted text in italics                        |
 | `calliope.renderHorizontalRules` | `true`  | Render horizontal rules as separators             |
 | `calliope.renderCodeBlocks`      | `true`  | Style fenced code block delimiters                |
 | `calliope.renderImages`          | `false` | Render inline image previews (opt-in — resolves files from disk and fetches remote URLs) |

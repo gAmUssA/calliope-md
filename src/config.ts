@@ -9,6 +9,7 @@ export interface CalliopeConfig {
   renderLinks: boolean;
   renderInlineCode: boolean;
   renderBlockquotes: boolean;
+  italicBlockquotes: boolean;
   renderHorizontalRules: boolean;
   renderCodeBlocks: boolean;
   renderImages: boolean;
@@ -32,6 +33,7 @@ export function getConfig(): CalliopeConfig {
     renderLinks: config.get<boolean>('renderLinks', true),
     renderInlineCode: config.get<boolean>('renderInlineCode', true),
     renderBlockquotes: config.get<boolean>('renderBlockquotes', true),
+    italicBlockquotes: config.get<boolean>('italicBlockquotes', true),
     renderHorizontalRules: config.get<boolean>('renderHorizontalRules', true),
     renderCodeBlocks: config.get<boolean>('renderCodeBlocks', true),
     renderImages: config.get<boolean>('renderImages', false),

@@ -32,6 +32,8 @@ export interface DecorationTypes {
   // Phase 2: Blockquotes
   blockquoteBorder: vscode.TextEditorDecorationType;
   blockquoteMarkerDim: vscode.TextEditorDecorationType;
+  blockquoteIndent: vscode.TextEditorDecorationType;
+  blockquoteItalic: vscode.TextEditorDecorationType;
 
   // Phase 2: Horizontal rules
   horizontalRule: vscode.TextEditorDecorationType;
@@ -157,7 +159,7 @@ export function createDecorationTypes(ghostOpacity: number): DecorationTypes {
       // VS Code has no borderLeft property — it builds CSS from a fixed set
       // (border/borderWidth/borderStyle/borderColor/...), so shorthand sides
       // are silently dropped. Express the left bar via borderWidth instead.
-      borderWidth: '0 0 0 3px',
+      borderWidth: '0 0 0 4px',
       borderStyle: 'solid',
       borderColor: new vscode.ThemeColor('textBlockQuote.border'),
       backgroundColor: new vscode.ThemeColor('textBlockQuote.background'),
@@ -165,6 +167,16 @@ export function createDecorationTypes(ghostOpacity: number): DecorationTypes {
     }),
     blockquoteMarkerDim: vscode.window.createTextEditorDecorationType({
       opacity: '0.4',
+    }),
+    // Stands in for the hidden marker run: a gap between the quote bar and the
+    // text, so hiding "> " does not shove the prose into the bar. The gap grows
+    // with nesting depth, so it is set per decoration in before render options.
+    blockquoteIndent: vscode.window.createTextEditorDecorationType({}),
+
+    // Quoted prose reads as someone else's voice; italics say so without
+    // touching the theme's colours.
+    blockquoteItalic: vscode.window.createTextEditorDecorationType({
+      fontStyle: 'italic',
     }),
 
     // Phase 2: Horizontal rules

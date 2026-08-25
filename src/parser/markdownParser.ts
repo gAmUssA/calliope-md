@@ -501,14 +501,21 @@ function extractBlockquote(node: MdastNode, text: string, blockquotes: Blockquot
   let currentOffset = pos.start.offset;
   let currentLine = pos.start.line;
 
-  for (const line of lines) {
-    const markerMatch = line.match(/^(\s*>)/);
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    // The whole leading run — every ">" of a nested quote plus the single space
+    // that conventionally follows each — so the rendered view can hide it as
+    // one unit and set the indent itself.
+    const markerMatch = line.match(/^([ \t]*(?:>[ \t]?)+)/);
     if (markerMatch) {
+      // Only the first line of a nested quote starts mid-line; the rest of the
+      // slice begins at column 1 of its document line.
+      const startColumn = i === 0 ? pos.start.column : 1;
       const markerStart = currentOffset;
       const markerEnd = currentOffset + markerMatch[1].length;
       markerRanges.push({
-        start: { line: currentLine, column: 1, offset: markerStart },
-        end: { line: currentLine, column: markerMatch[1].length + 1, offset: markerEnd },
+        start: { line: currentLine, column: startColumn, offset: markerStart },
+        end: { line: currentLine, column: startColumn + markerMatch[1].length, offset: markerEnd },
       });
     }
     currentOffset += line.length + 1; // +1 for newline

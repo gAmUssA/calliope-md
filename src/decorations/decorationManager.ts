@@ -277,9 +277,11 @@ function updateDecorations(editor: vscode.TextEditor): void {
   if (config.renderBlockquotes) {
     const blockquoteDecos = createBlockquoteDecorations(
       filterByVisibleRange(parsed.blockquotes, visibleRange),
-      editor
+      editor,
+      config.italicBlockquotes
     );
     applyBlockquoteDecorations(editor, decorationTypes, blockquoteDecos);
+    allSyntaxHidden.push(...blockquoteDecos.syntaxHidden);
     allSyntaxGhost.push(...blockquoteDecos.syntaxGhost);
   } else {
     clearBlockquoteDecorations(editor);
@@ -432,6 +434,8 @@ function clearAllDecorations(editor: vscode.TextEditor): void {
   // Phase 2 elements
   editor.setDecorations(decorationTypes.blockquoteBorder, emptyArray);
   editor.setDecorations(decorationTypes.blockquoteMarkerDim, emptyArray);
+  editor.setDecorations(decorationTypes.blockquoteIndent, emptyArray);
+  editor.setDecorations(decorationTypes.blockquoteItalic, emptyArray);
   editor.setDecorations(decorationTypes.horizontalRule, emptyArray);
   editor.setDecorations(decorationTypes.codeFenceDim, emptyArray);
   editor.setDecorations(decorationTypes.imagePreview, emptyArray);
@@ -495,6 +499,8 @@ function clearBlockquoteDecorations(editor: vscode.TextEditor): void {
   if (!decorationTypes) return;
   editor.setDecorations(decorationTypes.blockquoteBorder, []);
   editor.setDecorations(decorationTypes.blockquoteMarkerDim, []);
+  editor.setDecorations(decorationTypes.blockquoteIndent, []);
+  editor.setDecorations(decorationTypes.blockquoteItalic, []);
 }
 
 function clearHorizontalRuleDecorations(editor: vscode.TextEditor): void {

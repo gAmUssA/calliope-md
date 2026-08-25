@@ -5,17 +5,26 @@ All notable changes to the Calliope extension will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-### Tests
-
-- Added `test/sentenceSplitter.test.js` — 24 cases covering the One Sentence Per Line splitter: titles and abbreviations that must not end a sentence, multi-period forms (`e.g.`, `U.S.`), decimals, domains, file names and ellipses treated as atomic, closing quotes and brackets staying with their sentence, and the rule that a split requires an uppercase, quote or digit to follow
-- Added `test/tableFormatter.test.js` — 16 cases covering column padding, that only whitespace is ever changed, idempotence, separator-row integrity, the three-character minimum width, multiple tables in one document, single-column tables, and left/centre/right alignment
+## [0.10.0] - 2026-08-25
 
 ### Changed
 
+- **Blockquotes render as a bar, not a dimmed `>`** — the `>` marker (and the space after it) is now hidden outright in the rendered state, the way list bullets and heading hashes already are, instead of being dimmed to 40%. A blank quoted line no longer shows a lone `>` floating beside the bar, the quote bar grew from 3px to 4px, and a small indent decoration replaces the width the marker used to occupy so the prose does not sit against the bar (`src/decorations/decorationTypes.ts`, `src/decorations/elements/blockquotes.ts`)
+- **Only the caret's line drops back to raw markup** — a blockquote's visibility was decided for the whole block, so putting the cursor anywhere inside a multi-paragraph quote un-rendered every `>` in it. Markers are now decided per line: the line being edited keeps its dimmed `>` in place (so columns do not jump), every other line stays rendered (`src/decorations/elements/blockquotes.ts`)
+- **Quoted prose is set in italics** — new `calliope.italicBlockquotes` setting (default `true`), applied as a decoration so it works in themes that do not italicise `markup.quote` themselves, and switchable off for themes that do something better (`package.json`, `src/config.ts`, `src/decorations/decorationTypes.ts`)
+- The parser's blockquote marker ranges now cover the whole leading marker run — every `>` of a nested quote plus the space after each — so nesting hides cleanly instead of leaving the inner `>` behind, and nested quotes step in by one level of indent. Marker columns are computed from the node's own start column, which was previously hardcoded to 1 and made nested quotes decorate their parent's marker (`src/parser/markdownParser.ts`)
 - Manual test documents moved out of the repository root into `samples/`, with a `samples/README.md` explaining what each exercises. They were never used by the automated suite, which runs entirely on inline fixtures
 - `.idea/` added to `.gitignore`
+
+### Build
+
+- CI actions bumped to v7 and the test runtime moved off Node 20 (end of life) to Node 22 LTS (`.github/workflows/ci.yml`)
+
+### Tests
+
+- Added `test/blockquoteDecorations.test.js` — 12 cases covering marker hiding, the per-line caret rule, indent/hidden pairing, the bar spanning blank quoted lines, a quote ending the document without a trailing newline, the italics toggle, and nested quotes (whole-run hiding, one decoration per line, one indent step per level)
+- Added `test/sentenceSplitter.test.js` — 24 cases covering the One Sentence Per Line splitter: titles and abbreviations that must not end a sentence, multi-period forms (`e.g.`, `U.S.`), decimals, domains, file names and ellipses treated as atomic, closing quotes and brackets staying with their sentence, and the rule that a split requires an uppercase, quote or digit to follow
+- Added `test/tableFormatter.test.js` — 16 cases covering column padding, that only whitespace is ever changed, idempotence, separator-row integrity, the three-character minimum width, multiple tables in one document, single-column tables, and left/centre/right alignment
 
 ## [0.9.2] - 2026-08-20
 
